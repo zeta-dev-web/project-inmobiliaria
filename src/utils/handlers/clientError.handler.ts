@@ -33,7 +33,7 @@ export function handleClientError(error: unknown): ClientError {
 
   const defaultMessage = 'An unexpected error occurred';
   toast.error(defaultMessage);
-  
+
   return {
     message: defaultMessage,
   };
