@@ -21,7 +21,9 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             cd ~/project-inmobiliaria
             git pull origin dev
-            yarn install
+            rm -f package-lock.json
+            yarn install --ignore-engines
+            yarn add dotenv
             npx prisma generate
             npx prisma migrate deploy
             yarn build
