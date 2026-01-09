@@ -1,25 +1,24 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { verify } from 'argon2';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { db } from '@/lib/prisma';
+import { USER_ROLES } from '@/constants/roles.constants';
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        dni: { label: 'DNI', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password required');
+        if (!credentials?.dni || !credentials?.password) {
+          throw new Error('DNI and password required');
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+        const user = await db.user.findUnique({
+          where: { dni: parseInt(credentials.dni) },
         });
 
         if (!user || !user.password) {
@@ -36,6 +35,8 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          role: user.role,
+          dni: user.dni,
         };
       },
     }),
@@ -50,12 +51,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
+        token.dni = user.dni;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.dni = token.dni as string;
       }
       return session;
     },

@@ -11,22 +11,34 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  accounts      Account[]
-  sessions      Session[]
+  id                Int        @id @default(autoincrement())
+  name              String?
+  email             String?    @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  dni               Int?       @unique
+  role              UserRole   @default(USER)
+  signatureUrl      String?    // Firma digital del usuario admin
+  accounts          Account[]
+  sessions          Session[]
+  properties        Property[]
+  clientsEdited     Client[]   @relation("ClientEditedBy")
+  signedPayments    Payment[]  @relation("PaymentSigner")
+}
+
+enum UserRole {
+  ADMIN
+  USER
 }
 
 model Account {
   id                 String  @id @default(cuid())
-  userId             String
+  userId             Int
   type               String
   provider           String
   providerAccountId  String
@@ -46,7 +58,7 @@ model Account {
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       String
+  userId       Int
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -57,4 +69,202 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Property {
+  id             String         @id @default(cuid())
+  name           String
+  address        String
+  type           PropertyType   @default(RENT)
+  price          Float
+  saleCommission Float?
+  description    String?
+  status         PropertyStatus @default(AVAILABLE)
+  published      Boolean        @default(false)
+  requirements   String?        // Para alquileres
+  documentation  String?        // Para ventas
+  propertyUse    PropertyUse?   // Vivienda o Local Comercial (solo para alquileres)
+  clientId       String?
+  client         Client?        @relation(fields: [clientId], references: [id])
+  lastEditedById Int?
+  lastEditedBy   User?          @relation(fields: [lastEditedById], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  rentals        Rental[]
+  offers         Offer[]
+  photos         PropertyPhoto[]
+  documents      PropertyDocument[]
+}
+
+enum PropertyUse {
+  VIVIENDA
+  LOCAL_COMERCIAL
+}
+
+enum PropertyType {
+  RENT
+  SALE
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  RENTED
+  SOLD
+  UNAVAILABLE
+}
+
+model Offer {
+  id             String      @id @default(cuid())
+  property       Property    @relation(fields: [propertyId], references: [id])
+  propertyId     String
+  offeringPerson String
+  status         OfferStatus @default(PENDING)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Client {
+  id                String            @id @default(cuid())
+  name              String
+  email             String            @unique
+  phone             String
+  lastEditedById    Int?
+  lastEditedBy      User?             @relation("ClientEditedBy", fields: [lastEditedById], references: [id])
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  rentalsAsTenant   Rental[]          @relation("RentalTenant")
+  rentalsAsLandlord Rental[]          @relation("RentalLandlord")
+  guarantorFor      RentalGuarantor[]
+  properties        Property[]
+}
+
+model Rental {
+  id                    String         @id @default(cuid())
+  property              Property       @relation(fields: [propertyId], references: [id])
+  propertyId            String
+  tenant                Client         @relation("RentalTenant", fields: [tenantId], references: [id])
+  tenantId              String
+  landlord              Client         @relation("RentalLandlord", fields: [landlordId], references: [id])
+  landlordId            String
+  guarantors            RentalGuarantor[]
+  rentalPrice           Float
+  updateFrequency       Int            // meses
+  startDate             DateTime
+  endDate               DateTime
+  paymentDueDay         Int            // día del mes (1-31)
+  lateFee               Float
+  administrationAmount  Float          // monto o porcentaje de administración
+  administrationType    AdminType      @default(PERCENTAGE)
+  payments              Payment[]
+  pricePeriods          PricePeriod[]  // Períodos de precio
+  notifications         Notification[] // Notificaciones del alquiler
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+}
+
+model RentalGuarantor {
+  id        String   @id @default(cuid())
+  rental    Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  createdAt DateTime @default(now())
+}
+
+enum AdminType {
+  PERCENTAGE
+  FIXED
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  receiptNumber   String        @unique // Número de recibo (ej: "2025/11/001")
+  rental          Rental        @relation(fields: [rentalId], references: [id])
+  rentalId        String
+  amount          Float         // Monto total del pago
+  paymentDate     DateTime      // Fecha del pago
+  periodMonth     String?       // Mes correspondiente al pago (ej: "2024-01")
+  notes           String?       // Notas adicionales
+  signedBy        User          @relation("PaymentSigner", fields: [signedById], references: [id])
+  signedById      Int           // Usuario admin que firma el recibo
+  transactionHash String        @unique // Hash de seguridad de la transacción
+  items           PaymentItem[] // Items adicionales del pago
+  delivered       Boolean       @default(false) // Si el dinero fue entregado al propietario
+  deliveryDate    DateTime?     // Fecha de entrega al propietario
+  deliveryMethod  String?       // Método de entrega (efectivo/transferencia)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model PaymentItem {
+  id          String   @id @default(cuid())
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  paymentId   String
+  description String   // Descripción del item (ej: "Servicios", "Mora")
+  amount      Float    // Monto del item
+  createdAt   DateTime @default(now())
+}
+
+model PropertyPhoto {
+  id         String   @id @default(cuid())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+  url        String
+  isMain     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model PropertyDocument {
+  id         String   @id @default(cuid())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+  url        String
+  name       String
+  createdAt  DateTime @default(now())
+}
+
+model PricePeriod {
+  id          String   @id @default(cuid())
+  rental      Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId    String
+  startMonth  Int      // Mes de inicio del período (1-N)
+  endMonth    Int      // Mes de fin del período (1-N)
+  price       Float?   // Precio para este período (null si aún no se definió)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ICL {
+  id        String   @id @default(cuid())
+  date      DateTime @unique // Fecha del valor ICL
+  value     Float    // Valor del ICL
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  rental     Rental           @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId   String
+  type       NotificationType // Tipo de notificación
+  message    String           // Mensaje de la notificación
+  notified   Boolean          @default(false) // Si ya fue notificado
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([rentalId, type])
+  @@index([rentalId, notified])
+}
+
+enum NotificationType {
+  CONTRACT_EXPIRING
+  PRICE_UPDATE
 }

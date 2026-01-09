@@ -1,19 +1,17 @@
-import { withAuth } from 'next-auth/middleware';
+import { withAuth } from "next-auth/middleware";
 
 export default withAuth(
   function middleware(req) {
-    // Add any additional middleware logic here
+    // Middleware logic here if needed
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Protect all routes except auth and public routes
-        const { pathname } = req.nextUrl;
-        
-        if (pathname.startsWith('/auth') || pathname.startsWith('/api/auth')) {
-          return true;
+        // If accessing admin routes or home, require admin role
+        if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname === "/") {
+          return token?.role === "ADMIN";
         }
-        
+        // For other protected routes, just require authentication
         return !!token;
       },
     },
@@ -21,7 +19,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: [
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|public).*)',
-  ],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/"]
 };

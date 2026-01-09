@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import httpStatus from 'http-status';
+import logger from '@/src/utils/logger';
 
 export class ApiError extends Error {
   statusCode: number;
@@ -13,9 +14,18 @@ export class ApiError extends Error {
 }
 
 export function handleApiError(error: unknown) {
-  console.error('API Error:', error);
+  logger.error('API Error occurred', {
+    error: error instanceof Error ? error.message : 'Unknown error',
+    stack: error instanceof Error ? error.stack : undefined,
+    timestamp: new Date().toISOString(),
+  });
 
   if (error instanceof ZodError) {
+    logger.warn('Validation error', {
+      errors: error.errors,
+      timestamp: new Date().toISOString(),
+    });
+    
     return NextResponse.json(
       {
         message: 'Validation error',
@@ -44,3 +54,6 @@ export function handleApiError(error: unknown) {
     { status: httpStatus.INTERNAL_SERVER_ERROR }
   );
 }
+
+// Alias para compatibilidad
+export const apiErrorHandler = handleApiError;
