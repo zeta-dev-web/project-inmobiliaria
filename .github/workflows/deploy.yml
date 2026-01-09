@@ -17,8 +17,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            cd sistema-inmobiliaria/my-app
-            git fetch origin dev
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            cd ~/sistema-inmobiliaria/my-app
             git pull origin dev
             npm install
             npx prisma generate
