@@ -19,10 +19,10 @@ jobs:
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            cd ~/sistema-inmobiliaria/my-app
+            cd ~/project-inmobiliaria
             git pull origin dev
-            npm install
+            yarn install
             npx prisma generate
             npx prisma migrate deploy
-            npm run build
+            yarn build
             pm2 restart ecosystem.config.js --update-env

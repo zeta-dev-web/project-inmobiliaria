@@ -2,9 +2,9 @@ module.exports = {
   apps: [
     {
       name: 'sistema-inmobiliaria',
-      script: 'npm',
+      script: 'yarn',
       args: 'start',
-      cwd: '/var/www/sistema-inmobiliaria/my-app',
+      cwd: '/home/ubuntu/project-inmobiliaria/my-app',
       instances: 1,
       autorestart: true,
       watch: false,
