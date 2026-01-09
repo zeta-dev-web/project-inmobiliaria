@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 export interface ClientError {
   message: string;
   status?: number;
-  errors?: any[];
+  errors?: unknown[];
 }
 
 export function handleClientError(error: unknown): ClientError {

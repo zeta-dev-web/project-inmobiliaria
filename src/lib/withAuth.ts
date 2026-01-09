@@ -2,8 +2,10 @@ import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import authOptions from '@/src/lib/auth';
 
-export async function withAuth(handler: Function) {
-  return async (req: Request, context?: any) => {
+type RouteHandler = (req: Request, context?: unknown) => Promise<NextResponse>;
+
+export async function withAuth(handler: RouteHandler) {
+  return async (req: Request, context?: unknown) => {
     const session = await getServerSession(authOptions);
 
     if (!session) {

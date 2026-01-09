@@ -3,10 +3,10 @@ import prisma from '@/lib/prisma';
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string; photoId: string } }
+  { params }: { params: Promise<{ id: string; photoId: string }> }
 ) {
   try {
-    const { id, photoId } = params;
+    const { id, photoId } = await params;
 
     await prisma.propertyPhoto.delete({
       where: { 

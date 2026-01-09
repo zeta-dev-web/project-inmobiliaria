@@ -4,7 +4,7 @@ module.exports = {
       name: 'sistema-inmobiliaria',
       script: 'yarn',
       args: 'start',
-      cwd: '/home/ubuntu/project-inmobiliaria/my-app',
+      cwd: '/root/project-inmobiliaria',
       instances: 1,
       autorestart: true,
       watch: false,

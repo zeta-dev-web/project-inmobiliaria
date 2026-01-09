@@ -33,3 +33,4 @@ clientAxios.interceptors.response.use(
 );
 
 export default clientAxios;
+export { clientAxios };

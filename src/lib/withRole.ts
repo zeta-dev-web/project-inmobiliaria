@@ -3,10 +3,10 @@ import { NextResponse } from 'next/server';
 import authOptions from '@/src/lib/auth';
 import { USER_ROLES } from '@/src/constants/roles.constants';
 
-type RouteHandler = (req: Request, context?: any) => Promise<NextResponse>;
+type RouteHandler = (req: Request, context?: unknown) => Promise<NextResponse>;
 
 export function withRole(handler: RouteHandler, requiredRole?: string): RouteHandler {
-  return async (req: Request, context?: any) => {
+  return async (req: Request, context?: unknown) => {
     const session = await getServerSession(authOptions);
 
     if (!session) {
