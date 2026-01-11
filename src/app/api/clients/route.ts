@@ -1,10 +1,10 @@
-import { db } from "@/src/lib/prisma";
-import { apiErrorHandler } from "@/src/utils/handlers/apiError.handler";
-import { createClientSchema } from "@/src/lib/zod/client.schema";
-import { getPaginationParams, createPaginatedResponse } from "@/src/utils/pagination";
+import prisma from "@/lib/prisma";
+import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import { createClientSchema } from "@/lib/zod/client.schema";
+import { getPaginationParams, createPaginatedResponse } from "@/utils/pagination";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -12,10 +12,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = createClientSchema.parse(body);
 
-    const client = await db.client.create({
+    const client = await prisma.client.create({
       data: {
         ...validatedData,
-        lastEditedById: session?.user?.id,
+        lastEditedById: session?.user?.id ? Number(session.user.id) : undefined,
       },
     });
 
@@ -41,7 +41,7 @@ export async function GET(req: Request) {
     } : {};
 
     const [clients, totalRecords] = await Promise.all([
-      db.client.findMany({
+      prisma.client.findMany({
         where,
         skip,
         take: limit,
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
           }
         }
       }),
-      db.client.count({ where }),
+      prisma.client.count({ where }),
     ]);
 
     const response = createPaginatedResponse(clients, totalRecords, page, limit);

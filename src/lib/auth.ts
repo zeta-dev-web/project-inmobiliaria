@@ -1,8 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { verify } from 'argon2';
-import { db } from '@/lib/prisma';
-import { USER_ROLES } from '@/constants/roles.constants';
+import prisma from '@/lib/prisma';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,7 +16,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error('DNI and password required');
         }
 
-        const user = await db.user.findUnique({
+        const user = await prisma.user.findUnique({
           where: { dni: parseInt(credentials.dni) },
         });
 
@@ -32,11 +31,11 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user.id,
+          id: user.id.toString(),
           email: user.email,
           name: user.name,
           role: user.role,
-          dni: user.dni,
+          dni: user.dni?.toString(),
         };
       },
     }),

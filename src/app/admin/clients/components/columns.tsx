@@ -1,6 +1,6 @@
 "use client";
 
-import { Client } from "@prisma/client";
+import { Client } from "@/src/generated/prisma";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";

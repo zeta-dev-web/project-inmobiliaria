@@ -22,14 +22,14 @@ export function handleApiError(error: unknown) {
 
   if (error instanceof ZodError) {
     logger.warn('Validation error', {
-      errors: error.errors,
+      errors: error.issues,
       timestamp: new Date().toISOString(),
     });
     
     return NextResponse.json(
       {
         message: 'Validation error',
-        errors: error.errors,
+        errors: error.issues,
       },
       { status: httpStatus.BAD_REQUEST }
     );

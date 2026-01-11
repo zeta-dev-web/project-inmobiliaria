@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { UserRole } from '@/generated/prisma';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get("role");
+    const role = searchParams.get('role');
 
-    const where = role ? { role } : {};
+    const where = role ? { role: role as UserRole } : {};
 
     const users = await prisma.user.findMany({
       where,
@@ -20,9 +21,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ users });
   } catch (error: any) {
-    console.error("Error al obtener usuarios:", error);
+    console.error('Error al obtener usuarios:', error);
     return NextResponse.json(
-      { error: "Error al obtener usuarios" },
+      { error: 'Error al obtener usuarios' },
       { status: 500 }
     );
   }

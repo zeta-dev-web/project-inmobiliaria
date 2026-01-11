@@ -182,9 +182,9 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
   const selectedLandlordId = watch("landlordId");
   const selectedProperty = properties.find((p: Property) => p.id === watch("propertyId"));
 
-  const availableLandlordOptions = clientOptions.filter(c => c.value !== selectedTenantId);
-  const availableTenantOptions = clientOptions.filter(c => c.value !== selectedLandlordId);
-  const availableGuarantors = clientOptions.filter(c => 
+  const availableLandlordOptions = clientOptions.filter((c: { value: string }) => c.value !== selectedTenantId);
+  const availableTenantOptions = clientOptions.filter((c: { value: string }) => c.value !== selectedLandlordId);
+  const availableGuarantors = clientOptions.filter((c: { value: string }) => 
     !guarantorIds.includes(c.value) && 
     c.value !== selectedTenantId && 
     c.value !== selectedLandlordId
@@ -317,7 +317,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                 emptyMessage="No hay más clientes disponibles"
               />
               <div className="flex flex-wrap gap-2 mt-2">
-                {guarantorIds.map(id => {
+                {guarantorIds.map((id) => {
                   const client = clients.find((c: Client) => c.id === id);
                   return client ? (
                     <div key={id} className="flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-sm font-medium">

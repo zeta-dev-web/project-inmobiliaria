@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from 'react-toastify';
 import { clientAxios } from "@/utils/clientAxios";
-import { OfferStatus, Property } from "@prisma/client";
+import { OfferStatus, Property } from "@/src/generated/prisma";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

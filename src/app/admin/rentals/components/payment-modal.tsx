@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
-import { Plus, X, DollarSign, Calendar, FileText } from "lucide-react";
+import { Plus, X, DollarSign, Calendar, FileText, MessageCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type PaymentItem = {
@@ -244,7 +244,7 @@ export function PaymentModal({ open, onOpenChange, rental }: PaymentModalProps) 
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Fecha de Pago:</span>
-                  <span className="font-medium">{watch("paymentDate")}</span>
+                  <span className="font-medium">{watch("paymentDate") ? new Date(watch("paymentDate")).toLocaleDateString('es-ES') : ''}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Monto Alquiler:</span>

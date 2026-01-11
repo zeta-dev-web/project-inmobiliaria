@@ -23,8 +23,7 @@ jobs:
             git pull origin dev
             rm -f package-lock.json
             yarn install --ignore-engines
-            yarn add dotenv
+            yarn add dotenv --ignore-engines
             npx prisma generate
-            npx prisma migrate deploy
             yarn build
             pm2 restart ecosystem.config.js --update-env

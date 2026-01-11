@@ -1,17 +1,18 @@
-import { db } from "@/src/lib/prisma";
-import { apiErrorHandler } from "@/src/utils/handlers/apiError.handler";
-import { updateClientSchema } from "@/src/lib/zod/client.schema";
+import prisma from "@/lib/prisma";
+import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import { updateClientSchema } from "@/lib/zod/client.schema";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const client = await db.client.findUnique({
+    const client = await prisma.client.findUnique({
       where: { id },
       include: { 
-        rentals: { include: { property: true } },
+        rentalsAsTenant: { include: { property: true } },
+        rentalsAsLandlord: { include: { property: true } },
         properties: true,
       },
     });
@@ -33,11 +34,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const body = await req.json();
     const validatedData = updateClientSchema.parse(body);
 
-    const client = await db.client.update({
+    const client = await prisma.client.update({
       where: { id },
       data: {
         ...validatedData,
-        lastEditedById: session?.user?.id,
+        lastEditedById: session?.user?.id ? Number(session.user.id) : undefined,
       },
     });
 
@@ -50,7 +51,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    await db.client.delete({
+    await prisma.client.delete({
       where: { id },
     });
 

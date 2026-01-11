@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from 'react-toastify';
 import { clientAxios } from "@/utils/clientAxios";
-import { PropertyStatus } from "@prisma/client";
+import { PropertyStatus } from "@/src/generated/prisma";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -95,8 +95,11 @@ export default function NewPropertyPage() {
                   <SelectItem value={PropertyStatus.RENTED}>
                     Alquilada
                   </SelectItem>
-                  <SelectItem value={PropertyStatus.MAINTENANCE}>
-                    Mantenimiento
+                  <SelectItem value={PropertyStatus.SOLD}>
+                    Vendida
+                  </SelectItem>
+                  <SelectItem value={PropertyStatus.UNAVAILABLE}>
+                    No Disponible
                   </SelectItem>
                 </SelectContent>
               </Select>

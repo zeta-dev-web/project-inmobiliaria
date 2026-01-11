@@ -1,8 +1,8 @@
 import { DEFAULT_PAGINATION } from '@/src/constants/pagination.constants';
 
 export interface PaginationParams {
-  page?: number;
-  limit?: number;
+  page: number;
+  limit: number;
   search?: string;
 }
 

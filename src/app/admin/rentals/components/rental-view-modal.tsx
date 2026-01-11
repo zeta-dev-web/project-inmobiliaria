@@ -149,21 +149,6 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
               <p className="text-gray-900">{new Date(rental.endDate).toLocaleDateString()}</p>
             </div>
           </div>
-
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <h3 className="font-semibold text-gray-900">Estado de Pago</h3>
-            </div>
-            <Badge 
-              variant="outline"
-              className={rental.paymentStatus === "PAID" 
-                ? "bg-green-50 text-green-700 border-green-200" 
-                : "bg-red-50 text-red-700 border-red-200"
-              }
-            >
-              {rental.paymentStatus === "PAID" ? "Pagado" : "Pendiente"}
-            </Badge>
-          </div>
         </div>
       </DialogContent>
     </Dialog>

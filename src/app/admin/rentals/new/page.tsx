@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from 'react-toastify';
 import { clientAxios } from "@/utils/clientAxios";
-import { Client, PaymentStatus, Property } from "@prisma/client";
+import { Client, Property } from "@/src/generated/prisma";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -39,9 +39,6 @@ export default function NewRentalPage() {
   const [clientId, setClientId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
-    PaymentStatus.UNPAID
-  );
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -65,7 +62,6 @@ export default function NewRentalPage() {
         clientId,
         startDate,
         endDate,
-        paymentStatus,
       });
 
       toast.success("Alquiler creado con éxito.");
@@ -141,23 +137,6 @@ export default function NewRentalPage() {
             <div className="space-y-2">
               <Label htmlFor="endDate">Fecha de Fin</Label>
               <DatePicker date={endDate} setDate={setEndDate} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Estado del Pago</Label>
-              <Select
-                value={paymentStatus}
-                onValueChange={(value) =>
-                  setPaymentStatus(value as PaymentStatus)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione un estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={PaymentStatus.UNPAID}>Pendiente</SelectItem>
-                  <SelectItem value={PaymentStatus.PAID}>Pagado</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Cargando..." : "Crear Alquiler"}

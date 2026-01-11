@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/src/lib/prisma";
-import { uploadFile } from "@/src/utils/uploadFile";
-import { apiErrorHandler } from "@/src/utils/handlers/apiError.handler";
+import prisma from "@/lib/prisma";
+import { uploadFile } from "@/utils/uploadFile";
+import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
@@ -20,7 +20,7 @@ export async function POST(
       return NextResponse.json({ message: "No se enviaron archivos" }, { status: 400 });
     }
 
-    const property = await db.property.findUnique({
+    const property = await prisma.property.findUnique({
       where: { id },
       include: { photos: true },
     });
@@ -55,7 +55,7 @@ export async function POST(
     const uploadedPhotos = [];
     for (const file of files) {
       const url = await uploadFile(file, 'properties', `property-${id}`);
-      const photo = await db.propertyPhoto.create({
+      const photo = await prisma.propertyPhoto.create({
         data: {
           propertyId: id,
           url,
@@ -83,7 +83,7 @@ export async function DELETE(
       return NextResponse.json({ message: "ID de foto requerido" }, { status: 400 });
     }
 
-    const photo = await db.propertyPhoto.findUnique({
+    const photo = await prisma.propertyPhoto.findUnique({
       where: { id: photoId },
     });
 
@@ -91,7 +91,7 @@ export async function DELETE(
       return NextResponse.json({ message: "Foto no encontrada" }, { status: 404 });
     }
 
-    await db.propertyPhoto.delete({
+    await prisma.propertyPhoto.delete({
       where: { id: photoId },
     });
 

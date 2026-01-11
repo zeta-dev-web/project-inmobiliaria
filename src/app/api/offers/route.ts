@@ -1,7 +1,7 @@
-import { db } from "@/src/lib/prisma";
-import { apiErrorHandler } from "@/src/utils/handlers/apiError.handler";
-import { createOfferSchema } from "@/src/lib/zod/offer.schema";
-import { getPaginationParams, createPaginatedResponse } from "@/src/utils/pagination";
+import prisma from "@/lib/prisma";
+import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import { createOfferSchema } from "@/lib/zod/offer.schema";
+import { getPaginationParams, createPaginatedResponse } from "@/utils/pagination";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const validatedData = createOfferSchema.parse(body);
 
     // Verificar que la propiedad existe
-    const property = await db.property.findUnique({
+    const property = await prisma.property.findUnique({
       where: { id: validatedData.propertyId },
     });
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const offer = await db.offer.create({
+    const offer = await prisma.offer.create({
       data: validatedData,
       include: {
         property: true,
@@ -49,7 +49,7 @@ export async function GET(req: Request) {
     } : {};
 
     const [offers, totalRecords] = await Promise.all([
-      db.offer.findMany({
+      prisma.offer.findMany({
         where,
         skip,
         take: limit,
@@ -58,7 +58,7 @@ export async function GET(req: Request) {
         },
         orderBy: { createdAt: 'desc' },
       }),
-      db.offer.count({ where }),
+      prisma.offer.count({ where }),
     ]);
 
     const response = createPaginatedResponse(offers, totalRecords, page, limit);

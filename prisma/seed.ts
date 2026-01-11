@@ -1,4 +1,4 @@
-import { db } from '../src/lib/prisma';
+import prisma from '../src/lib/prisma';
 import { hash } from 'argon2';
 import { USER_ROLES } from '../src/constants/roles.constants';
 
@@ -6,7 +6,7 @@ async function main() {
   // Crear usuario Leonardo
   const leonardoPassword = await hash('admin123');
   
-  const leonardo = await db.user.upsert({
+  const leonardo = await prisma.user.upsert({
     where: { dni: 35523278 },
     update: {},
     create: {
@@ -21,7 +21,7 @@ async function main() {
   // Crear usuario Dámaris
   const damarisPassword = await hash('polar123');
   
-  const damaris = await db.user.upsert({
+  const damaris = await prisma.user.upsert({
     where: { dni: 37503342 },
     update: {},
     create: {
@@ -37,27 +37,27 @@ async function main() {
 
   // Crear 5 clientes ficticios
   const clients = await Promise.all([
-    db.client.upsert({
+    prisma.client.upsert({
       where: { email: 'juan.perez@email.com' },
       update: {},
       create: { name: 'Juan Pérez', email: 'juan.perez@email.com', phone: '381-4567890' },
     }),
-    db.client.upsert({
+    prisma.client.upsert({
       where: { email: 'maria.gomez@email.com' },
       update: {},
       create: { name: 'María Gómez', email: 'maria.gomez@email.com', phone: '381-4567891' },
     }),
-    db.client.upsert({
+    prisma.client.upsert({
       where: { email: 'carlos.rodriguez@email.com' },
       update: {},
       create: { name: 'Carlos Rodríguez', email: 'carlos.rodriguez@email.com', phone: '381-4567892' },
     }),
-    db.client.upsert({
+    prisma.client.upsert({
       where: { email: 'ana.martinez@email.com' },
       update: {},
       create: { name: 'Ana Martínez', email: 'ana.martinez@email.com', phone: '381-4567893' },
     }),
-    db.client.upsert({
+    prisma.client.upsert({
       where: { email: 'luis.fernandez@email.com' },
       update: {},
       create: { name: 'Luis Fernández', email: 'luis.fernandez@email.com', phone: '381-4567894' },
@@ -67,7 +67,7 @@ async function main() {
   console.log('Clients created:', clients.length);
 
   // Crear propiedades en Tafí Viejo
-  const vivienda = await db.property.create({
+  const vivienda = await prisma.property.create({
     data: {
       name: 'Casa 3 Dormitorios Tafí Viejo',
       address: 'Av. Perón 1250, Tafí Viejo',
@@ -83,7 +83,7 @@ async function main() {
     },
   });
 
-  const localComercial = await db.property.create({
+  const localComercial = await prisma.property.create({
     data: {
       name: 'Local Comercial Céntrico Tafí Viejo',
       address: 'Av. Alem 890, Tafí Viejo',
@@ -102,7 +102,7 @@ async function main() {
   console.log('Properties created');
 
   // Crear alquiler para la vivienda
-  const rental = await db.rental.create({
+  const rental = await prisma.rental.create({
     data: {
       propertyId: vivienda.id,
       tenantId: clients[2].id,
@@ -138,5 +138,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await db.$disconnect();
+    await prisma.$disconnect();
   });

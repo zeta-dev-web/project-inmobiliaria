@@ -1,7 +1,7 @@
-import { db } from '../src/lib/prisma';
+import prisma from '../src/lib/prisma';
 
 async function fixDates() {
-  await db.rental.updateMany({
+  await prisma.rental.updateMany({
     data: {
       startDate: new Date(2025, 0, 1, 12, 0, 0), // Enero 1, 2025 12:00 (mediodía)
     },
@@ -12,4 +12,4 @@ async function fixDates() {
 
 fixDates()
   .catch(console.error)
-  .finally(() => db.$disconnect());
+  .finally(() => prisma.$disconnect());
