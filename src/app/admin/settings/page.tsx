@@ -1,11 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RefreshCw } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { RefreshCw } from 'lucide-react';
 import { toast } from 'react-toastify';
-import clientAxios from "@/utils/clientAxios";
+import clientAxios from '@/utils/clientAxios';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 
 export default function SettingsPage() {
   const [showDialog, setShowDialog] = useState(false);
@@ -25,7 +31,9 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       const { data } = await clientAxios.post('/icl/sync');
-      toast.success(`ICL sincronizado: ${data.created} creados, ${data.updated} actualizados`);
+      toast.success(
+        `ICL sincronizado: ${data.created} creados, ${data.updated} actualizados`
+      );
     } catch (error) {
       toast.error('Error al sincronizar ICL');
     } finally {
@@ -37,7 +45,9 @@ export default function SettingsPage() {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">⚙️ Configuración</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          ⚙️ Configuración
+        </h1>
         <p className="text-gray-600 mt-1">
           Administra la configuración del sistema
         </p>
@@ -47,14 +57,15 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Índice para Contratos de Locación (ICL)</CardTitle>
           <CardDescription>
-            Sincroniza los valores del ICL desde la API del Banco Central de la República Argentina
+            Sincroniza los valores del ICL desde la API del Banco Central de la
+            República Argentina
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">
-                Los valores se actualizan automáticamente el día 1 de cada mes. 
+                Los valores se actualizan automáticamente el día 1 de cada mes.
                 Usa este botón solo si necesitas sincronizar manualmente.
               </p>
             </div>
@@ -63,7 +74,9 @@ export default function SettingsPage() {
               disabled={loading}
               className="bg-[#600096] hover:bg-[#4a0075] text-white"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`}
+              />
               Sincronizar
             </Button>
           </div>
@@ -75,7 +88,8 @@ export default function SettingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Sincronizar valores de ICL?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción consultará la API del BCRA y actualizará los valores del Índice para Contratos de Locación de los últimos 12 meses.
+              Esta acción consultará la API del BCRA y actualizará los valores
+              del Índice para Contratos de Locación de los últimos 24 meses.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
