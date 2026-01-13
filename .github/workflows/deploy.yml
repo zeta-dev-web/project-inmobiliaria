@@ -20,6 +20,7 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             cd ~/project-inmobiliaria
+            git reset --hard
             git pull origin dev
             rm -f package-lock.json
             yarn install --ignore-engines
