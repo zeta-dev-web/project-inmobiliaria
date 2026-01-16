@@ -9,7 +9,6 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = createOfferSchema.parse(body);
 
-    // Verificar que la propiedad existe
     const property = await prisma.property.findUnique({
       where: { id: validatedData.propertyId },
     });

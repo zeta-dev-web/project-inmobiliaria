@@ -12,31 +12,35 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.dni || !credentials?.password) {
-          throw new Error('DNI and password required');
+        try {
+          if (!credentials?.dni || !credentials?.password) {
+            throw new Error('DNI and password required');
+          }
+
+          const user = await prisma.user.findUnique({
+            where: { dni: parseInt(credentials.dni) },
+          });
+
+          if (!user || !user.password) {
+            throw new Error('Invalid credentials');
+          }
+
+          const isValid = await verify(user.password, credentials.password);
+
+          if (!isValid) {
+            throw new Error('Invalid credentials');
+          }
+
+          return {
+            id: user.id.toString(),
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            dni: user.dni?.toString(),
+          };
+        } catch (error) {
+          throw error;
         }
-
-        const user = await prisma.user.findUnique({
-          where: { dni: parseInt(credentials.dni) },
-        });
-
-        if (!user || !user.password) {
-          throw new Error('Invalid credentials');
-        }
-
-        const isValid = await verify(user.password, credentials.password);
-
-        if (!isValid) {
-          throw new Error('Invalid credentials');
-        }
-
-        return {
-          id: user.id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          dni: user.dni?.toString(),
-        };
       },
     }),
   ],

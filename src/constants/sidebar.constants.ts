@@ -9,6 +9,8 @@ import {
   BarChart3,
   UserCog,
   LayoutDashboard,
+  Receipt,
+  HandCoins,
 } from 'lucide-react';
 
 export type NavChild = {
@@ -31,7 +33,27 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   { title: 'Propiedades', icon: Building2, href: '/admin/properties' },
   { title: 'Clientes', icon: Users, href: '/admin/clients' },
   { title: 'Ofertas', icon: FileText, href: '/admin/offers' },
-  { title: 'Alquileres', icon: Home, href: '/admin/rentals' },
+  {
+    title: 'Alquileres',
+    icon: Home,
+    children: [
+      {
+        title: 'Admin de Alquileres',
+        href: '/admin/rentals',
+        icon: Home,
+      },
+      {
+        title: 'Historial de Pagos',
+        href: '/admin/rentals/payments',
+        icon: Receipt,
+      },
+      {
+        title: 'Historial de Entregas',
+        href: '/admin/rentals/deliveries',
+        icon: HandCoins,
+      },
+    ],
+  },
   { title: 'Reportes', icon: BarChart3, href: '/admin/reports' },
   {
     title: 'Configuración',

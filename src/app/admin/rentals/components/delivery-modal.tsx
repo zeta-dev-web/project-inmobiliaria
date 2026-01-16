@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useState } from "react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import clientAxios from "@/utils/clientAxios";
-import { toast } from "react-toastify";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useState } from 'react';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import clientAxios from '@/utils/clientAxios';
+import { toast } from 'react-toastify';
 
 interface DeliveryModalProps {
   open: boolean;
@@ -29,58 +29,75 @@ export function DeliveryModal({
   propertyName,
 }: DeliveryModalProps) {
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
-  const [deliveryMethod, setDeliveryMethod] = useState<string>("efectivo");
+  const [deliveryMethod, setDeliveryMethod] = useState<string>('efectivo');
   const queryClient = useQueryClient();
 
   const { data: pendingPayments, isLoading } = useQuery({
-    queryKey: ["pending-deliveries", rentalId],
+    queryKey: ['pending-deliveries', rentalId],
     queryFn: async () => {
       const { data } = await clientAxios.get(`/payments?rentalId=${rentalId}`);
-      return data.filter((p: any) => !p.delivered).sort((a: any, b: any) => a.periodMonth.localeCompare(b.periodMonth));
+      return data
+        .filter((p: any) => !p.delivered)
+        .sort((a: any, b: any) => a.periodMonth.localeCompare(b.periodMonth));
     },
     enabled: open,
   });
 
   const deliveryMutation = useMutation({
     mutationFn: async () => {
-      await clientAxios.post("/payments/deliver", {
+      await clientAxios.post('/payments/deliver', {
         paymentIds: selectedPayments,
         deliveryMethod,
       });
     },
-    onSuccess: () => {
-      toast.success("Entrega registrada exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["pending-deliveries"] });
-      queryClient.invalidateQueries({ queryKey: ["payment-history"] });
+    onSuccess: async () => {
+      toast.success('Entrega registrada exitosamente');
+      queryClient.invalidateQueries({ queryKey: ['pending-deliveries'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-history'] });
+
+      const response = await fetch('/api/payments/delivery-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIds: selectedPayments }),
+      });
+
+      const html = await response.text();
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(html);
+        newWindow.document.close();
+      }
+
       setSelectedPayments([]);
       onOpenChange(false);
     },
     onError: () => {
-      toast.error("Error al registrar la entrega");
+      toast.error('Error al registrar la entrega');
     },
   });
 
   const formatPeriod = (periodMonth: string) => {
-    const [year, month] = periodMonth.split("-");
+    const [year, month] = periodMonth.split('-');
     const date = new Date(parseInt(year), parseInt(month) - 1);
-    return date.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+    return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
   };
 
   const handleTogglePayment = (paymentId: string) => {
-    setSelectedPayments(prev =>
+    setSelectedPayments((prev) =>
       prev.includes(paymentId)
-        ? prev.filter(id => id !== paymentId)
+        ? prev.filter((id) => id !== paymentId)
         : [...prev, paymentId]
     );
   };
 
-  const totalAmount = pendingPayments
-    ?.filter((p: any) => selectedPayments.includes(p.id))
-    .reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
+  const totalAmount =
+    pendingPayments
+      ?.filter((p: any) => selectedPayments.includes(p.id))
+      .reduce((sum: number, p: any) => sum + p.amount, 0) || 0;
 
   const handleSubmit = () => {
     if (selectedPayments.length === 0) {
-      toast.error("Debe seleccionar al menos un pago");
+      toast.error('Debe seleccionar al menos un pago');
       return;
     }
     deliveryMutation.mutate();
@@ -135,8 +152,12 @@ export function DeliveryModal({
             {selectedPayments.length > 0 && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-700">Total a entregar:</span>
-                  <span className="text-xl font-bold text-gray-900">${totalAmount.toLocaleString()}</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Total a entregar:
+                  </span>
+                  <span className="text-xl font-bold text-gray-900">
+                    ${totalAmount.toLocaleString()}
+                  </span>
                 </div>
               </div>
             )}
@@ -145,28 +166,34 @@ export function DeliveryModal({
               <Label className="text-sm font-semibold text-gray-900 mb-3 block">
                 Forma de entrega:
               </Label>
-              <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod}>
+              <RadioGroup
+                value={deliveryMethod}
+                onValueChange={setDeliveryMethod}
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="efectivo" id="efectivo" />
-                  <Label htmlFor="efectivo" className="cursor-pointer">Efectivo</Label>
+                  <Label htmlFor="efectivo" className="cursor-pointer">
+                    Efectivo
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="transferencia" id="transferencia" />
-                  <Label htmlFor="transferencia" className="cursor-pointer">Transferencia</Label>
+                  <Label htmlFor="transferencia" className="cursor-pointer">
+                    Transferencia
+                  </Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={selectedPayments.length === 0 || deliveryMutation.isPending}
+                disabled={
+                  selectedPayments.length === 0 || deliveryMutation.isPending
+                }
                 className="bg-[#600096] hover:bg-[#500080]"
               >
                 Asentar Entrega
