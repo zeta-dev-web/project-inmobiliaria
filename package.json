@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start -p 3002",
     "lint": "next lint",
     "prepare": "husky",
@@ -21,6 +21,9 @@
     "studio": "prisma studio",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
