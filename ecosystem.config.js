@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'sistema-inmobiliaria',
       script: 'node_modules/.bin/next',
-      args: 'start -p 3002',
+      args: 'start -p 3006',
       cwd: '/root/project-inmobiliaria',
       instances: 1,
       autorestart: true,
