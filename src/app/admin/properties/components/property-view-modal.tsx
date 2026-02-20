@@ -15,7 +15,7 @@ interface PropertyViewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   property?: Property & { 
-    client?: { name: string; email: string; phone: string };
+    client?: { name: string; email: string | null; phone: string };
     photos?: { id: string; url: string }[];
   };
 }
@@ -128,7 +128,7 @@ export function PropertyViewModal({ open, onOpenChange, property }: PropertyView
               </p>
               <div className="space-y-1">
                 <p className="text-gray-900 font-medium">{property.client.name}</p>
-                <p className="text-sm text-gray-600">{property.client.email}</p>
+                <p className="text-sm text-gray-600">{property.client.email || '-'}</p>
                 <p className="text-sm text-gray-600">{property.client.phone}</p>
               </div>
             </div>

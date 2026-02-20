@@ -75,7 +75,7 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
                 <div key={index} className="flex items-center justify-between bg-white p-3 rounded border">
                   <div>
                     <p className="font-medium text-gray-900">{guarantor.client.name}</p>
-                    <p className="text-sm text-gray-600">{guarantor.client.email}</p>
+                    <p className="text-sm text-gray-600">{guarantor.client.email || '-'}</p>
                   </div>
                   <p className="text-sm text-gray-600">{guarantor.client.phone}</p>
                 </div>

@@ -28,7 +28,7 @@ export function ClientCombobox({ value, onChange }: ClientComboboxProps) {
   const clientOptions = clients.map((client) => ({
     value: client.id,
     label: client.name,
-    subtitle: client.email,
+    subtitle: client.email || undefined,
     icon: <User className="h-4 w-4 text-gray-400" />,
   }));
 
