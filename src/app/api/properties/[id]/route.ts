@@ -51,14 +51,34 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
-    await prisma.property.delete({
-      where: { id },
-    });
+    
+    // Eliminar relaciones primero
+    await prisma.propertyPhoto.deleteMany({ where: { propertyId: id } });
+    await prisma.propertyDocument.deleteMany({ where: { propertyId: id } });
+    await prisma.offer.deleteMany({ where: { propertyId: id } });
+    
+    // Verificar si tiene alquileres activos
+    const rentals = await prisma.rental.findMany({ where: { propertyId: id } });
+    if (rentals.length > 0) {
+      return NextResponse.json(
+        { error: 'No se puede eliminar una propiedad con alquileres activos' },
+        { status: 400 }
+      );
+    }
+    
+    // Eliminar propiedad
+    await prisma.property.delete({ where: { id } });
 
     return NextResponse.json({ message: "Propiedad eliminada con éxito" });
   } catch (error) {
+    console.error('Error deleting property:', error);
     return NextResponse.json(
       { error: 'Error al eliminar la propiedad' },
       { status: 500 }

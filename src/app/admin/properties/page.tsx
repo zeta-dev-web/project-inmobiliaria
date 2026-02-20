@@ -61,8 +61,9 @@ export default function PropertiesPage() {
       queryClient.invalidateQueries({ queryKey: ["properties"] });
       toast.success("Propiedad eliminada exitosamente");
     },
-    onError: () => {
-      toast.error("Error al eliminar la propiedad");
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.error || "Error al eliminar la propiedad";
+      toast.error(errorMessage);
     },
   });
 
