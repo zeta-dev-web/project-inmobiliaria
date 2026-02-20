@@ -1,41 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { Menu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sidebar } from '@/components/sidebar/Sidebar';
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from '@/components/ui/shadcn/sidebar';
+import { AppSidebar } from '@/components/sidebar/Sidebar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
-        {/* Mobile Header */}
-        <header className="lg:hidden bg-white shadow-sm border-b px-4 py-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarOpen(true)}
-            className="p-2"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
         </header>
-        
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
-      </div>
-    </div>
+        <main className="flex-1 overflow-auto p-4">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

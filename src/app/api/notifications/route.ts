@@ -9,16 +9,18 @@ export async function GET() {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      dni: true,
-      role: true,
+  const notifications = await prisma.notification.findMany({
+    where: { notified: false },
+    include: {
+      rental: {
+        include: {
+          property: { select: { name: true } },
+          tenant: { select: { name: true } },
+        },
+      },
     },
-    orderBy: { id: 'desc' },
+    orderBy: { createdAt: 'desc' },
   });
 
-  return NextResponse.json(users);
+  return NextResponse.json(notifications);
 }
