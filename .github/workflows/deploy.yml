@@ -26,6 +26,7 @@ jobs:
             yarn install --ignore-engines
             yarn add dotenv --ignore-engines
             npx prisma generate
+            npx prisma migrate deploy
             yarn seed
             yarn build
             pm2 restart ecosystem.config.js --update-env
