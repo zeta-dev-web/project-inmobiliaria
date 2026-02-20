@@ -47,7 +47,7 @@ export default function ClientsPage() {
     const matchesSearch =
       !search ||
       client.name.toLowerCase().includes(search.toLowerCase()) ||
-      client.email.toLowerCase().includes(search.toLowerCase());
+      client.email?.toLowerCase().includes(search.toLowerCase());
     return matchesSearch;
   });
 
@@ -96,7 +96,7 @@ export default function ClientsPage() {
             <p className="font-semibold text-gray-900 truncate">
               {client.name}
             </p>
-            <p className="text-sm text-gray-500 truncate">{client.email}</p>
+            <p className="text-sm text-gray-500 truncate">{client.email || '-'}</p>
           </div>
         </div>
       ),
@@ -252,11 +252,6 @@ export default function ClientsPage() {
         </div>
       )}
 
-      <ClientModal
-        open={modalOpen}
-        onOpenChange={handleCloseModal}
-        client={selectedClient}
-      />
       <ClientModal
         open={modalOpen}
         onOpenChange={handleCloseModal}
