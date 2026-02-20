@@ -99,8 +99,10 @@ export default function RentalsPage() {
       queryClient.invalidateQueries({ queryKey: ['rentals'] });
       toast.success('Alquiler eliminado exitosamente');
     },
-    onError: () => {
-      toast.error('Error al eliminar el alquiler');
+    onError: (error: any) => {
+      const errorMessage =
+        error.response?.data?.error || 'Error al eliminar el alquiler';
+      toast.error(errorMessage);
     },
   });
 
