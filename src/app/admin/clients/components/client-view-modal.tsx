@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Client, Property } from "@/generated/prisma";
-import { User, Mail, Phone, Building2, Calendar } from "lucide-react";
+import { User, Mail, Phone, Building2, Calendar, CreditCard, AtSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/shadcn/utils";
 
@@ -37,7 +37,7 @@ export function ClientViewModal({ open, onOpenChange, client }: ClientViewModalP
               <Mail className="h-5 w-5 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-500">Email</p>
-                <p className="text-gray-900 font-medium">{client.email}</p>
+                <p className="text-gray-900 font-medium">{client.email || '-'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -47,6 +47,24 @@ export function ClientViewModal({ open, onOpenChange, client }: ClientViewModalP
                 <p className="text-gray-900 font-medium">{client.phone}</p>
               </div>
             </div>
+            {(client as any).cbu && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <CreditCard className="h-5 w-5 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">CBU</p>
+                  <p className="text-gray-900 font-medium">{(client as any).cbu}</p>
+                </div>
+              </div>
+            )}
+            {(client as any).alias && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <AtSign className="h-5 w-5 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">Alias</p>
+                  <p className="text-gray-900 font-medium">{(client as any).alias}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Fechas */}

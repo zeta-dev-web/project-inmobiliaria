@@ -3,8 +3,10 @@ import { z } from 'zod';
 export const clientSchema = z.object({
   id: z.string().cuid(),
   name: z.string().min(1, 'Name is required').max(100),
-  email: z.string().email('Invalid email format'),
+  email: z.string().email('Invalid email format').optional().or(z.literal('')),
   phone: z.string().min(1, 'Phone is required').max(20),
+  cbu: z.string().max(22).optional().or(z.literal('')),
+  alias: z.string().max(50).optional().or(z.literal('')),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

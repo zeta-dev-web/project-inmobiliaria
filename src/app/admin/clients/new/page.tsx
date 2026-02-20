@@ -18,6 +18,8 @@ export default function NewClientPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [cbu, setCbu] = useState("");
+  const [alias, setAlias] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -30,6 +32,8 @@ export default function NewClientPage() {
         name,
         email,
         phone,
+        cbu,
+        alias,
       });
 
       toast.success("Cliente creado con éxito.");
@@ -67,7 +71,6 @@ export default function NewClientPage() {
                 id="email"
                 type="email"
                 placeholder="Email del cliente"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -81,6 +84,27 @@ export default function NewClientPage() {
                 required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cbu">CBU</Label>
+              <Input
+                id="cbu"
+                type="text"
+                placeholder="CBU para transferencias"
+                maxLength={22}
+                value={cbu}
+                onChange={(e) => setCbu(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="alias">Alias</Label>
+              <Input
+                id="alias"
+                type="text"
+                placeholder="Alias para transferencias"
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>

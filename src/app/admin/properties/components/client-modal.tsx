@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useEffect } from "react";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -17,18 +17,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import clientAxios from "@/utils/clientAxios";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import clientAxios from '@/utils/clientAxios';
 import { toast } from 'react-toastify';
-import { Client } from "@/generated/prisma";
+import { Client } from '@/generated/prisma';
 
 const clientSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido"),
-  email: z.string().email("Email inválido"),
-  phone: z.string().min(1, "El teléfono es requerido"),
+  name: z.string().min(1, 'El nombre es requerido'),
+  phone: z.string().min(1, 'El teléfono es requerido'),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  cbu: z.string().max(22).optional().or(z.literal('')),
+  alias: z.string().max(50).optional().or(z.literal('')),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -40,58 +42,69 @@ interface ClientModalProps {
   client?: Client;
 }
 
-export function ClientModal({ open, onOpenChange, onClientCreated, client }: ClientModalProps) {
+export function ClientModal({
+  open,
+  onOpenChange,
+  onClientCreated,
+  client,
+}: ClientModalProps) {
   const queryClient = useQueryClient();
-  
+
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
+      name: '',
+      phone: '',
+      email: '',
+      cbu: '',
+      alias: '',
     },
   });
 
   useEffect(() => {
     if (client) {
       form.reset({
-        name: client.name || "",
-        email: client.email || "",
-        phone: client.phone || "",
+        name: client.name || '',
+        phone: client.phone || '',
+        email: client.email || '',
+        cbu: (client as any).cbu || '',
+        alias: (client as any).alias || '',
       });
     } else {
       form.reset({
-        name: "",
-        email: "",
-        phone: "",
+        name: '',
+        phone: '',
+        email: '',
+        cbu: '',
+        alias: '',
       });
     }
   }, [client, form]);
 
   const createMutation = useMutation({
-    mutationFn: (data: ClientFormData) => clientAxios.post("/clients", data),
+    mutationFn: (data: ClientFormData) => clientAxios.post('/clients', data),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-      toast.success("Cliente creado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast.success('Cliente creado exitosamente');
       onClientCreated?.(response.data.id);
       onOpenChange(false);
       form.reset();
     },
     onError: () => {
-      toast.error("Error al crear el cliente");
+      toast.error('Error al crear el cliente');
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: ClientFormData) => 
+    mutationFn: (data: ClientFormData) =>
       clientAxios.put(`/clients/${client?.id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-      toast.success("Cliente actualizado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast.success('Cliente actualizado exitosamente');
       onOpenChange(false);
     },
     onError: () => {
-      toast.error("Error al actualizar el cliente");
+      toast.error('Error al actualizar el cliente');
     },
   });
 
@@ -108,42 +121,28 @@ export function ClientModal({ open, onOpenChange, onClientCreated, client }: Cli
       <DialogContent className="max-w-md bg-white rounded-2xl shadow-2xl border-0">
         <DialogHeader className="border-b border-gray-100 pb-4">
           <DialogTitle className="text-2xl font-bold text-gray-900">
-            {client ? "✏️ Editar Cliente" : "👤 Nuevo Cliente"}
+            {client ? '✏️ Editar Cliente' : '👤 Nuevo Cliente'}
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-5 pt-4"
+          >
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-700">Nombre</FormLabel>
+                  <FormLabel className="text-sm font-semibold text-gray-700">
+                    Nombre
+                  </FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Juan Pérez" 
+                    <Input
+                      placeholder="Juan Pérez"
                       className="h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-700">Email</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="email"
-                      placeholder="juan@ejemplo.com" 
-                      className="h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -156,18 +155,86 @@ export function ClientModal({ open, onOpenChange, onClientCreated, client }: Cli
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold text-gray-700">Teléfono</FormLabel>
+                  <FormLabel className="text-sm font-semibold text-gray-700">
+                    Teléfono
+                  </FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="+54 11 1234-5678" 
+                    <Input
+                      placeholder="+54 11 1234-5678"
                       className="h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="border-t border-gray-200 pt-4 mt-2">
+              <p className="text-xs text-gray-500 mb-4">Campos opcionales</p>
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-700">
+                      Email <span className="text-gray-400">(opcional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="juan@ejemplo.com"
+                        className="h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="cbu"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-700">
+                      CBU <span className="text-gray-400">(opcional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="CBU para transferencias"
+                        maxLength={22}
+                        className="h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="alias"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-700">
+                      Alias <span className="text-gray-400">(opcional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Alias para transferencias"
+                        className="h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
               <Button
@@ -185,14 +252,32 @@ export function ClientModal({ open, onOpenChange, onClientCreated, client }: Cli
               >
                 {createMutation.isPending || updateMutation.isPending ? (
                   <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Guardando...
                   </span>
+                ) : client ? (
+                  '✓ Actualizar'
                 ) : (
-                  client ? "✓ Actualizar" : "✓ Crear Cliente"
+                  '✓ Crear Cliente'
                 )}
               </Button>
             </div>

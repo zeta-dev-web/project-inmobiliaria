@@ -132,8 +132,10 @@ enum OfferStatus {
 model Client {
   id                String            @id @default(cuid())
   name              String
-  email             String            @unique
+  email             String?           @unique
   phone             String
+  cbu               String?           // CBU para transferencias
+  alias             String?           // Alias para transferencias
   lastEditedById    Int?
   lastEditedBy      User?             @relation("ClientEditedBy", fields: [lastEditedById], references: [id])
   createdAt         DateTime          @default(now())

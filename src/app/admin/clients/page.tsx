@@ -1,35 +1,39 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Users, Search, X } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import clientAxios from "@/utils/clientAxios";
-import { Client } from "@/generated/prisma";
-import { ModernTable } from "@/components/ui/modern-table";
-import { ClientModal } from "../properties/components/client-modal";
-import { ClientViewModal } from "./components/client-view-modal";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Plus, Users, Search, X } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import clientAxios from '@/utils/clientAxios';
+import { Client } from '@/generated/prisma';
+import { ModernTable } from '@/components/ui/modern-table';
+import { ClientModal } from '../properties/components/client-modal';
+import { ClientViewModal } from './components/client-view-modal';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, Trash2, Eye } from "lucide-react";
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical, Edit, Trash2, Eye } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { cn } from "@/lib/shadcn/utils";
+import { cn } from '@/lib/shadcn/utils';
 
 export default function ClientsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | undefined>();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
-  const { data: response, isLoading, error } = useQuery({
-    queryKey: ["clients", page],
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['clients', page],
     queryFn: async () => {
       const { data } = await clientAxios.get(`/clients?page=${page}&limit=10`);
       return data;
@@ -40,7 +44,8 @@ export default function ClientsPage() {
   const totalPages = response?.totalPages || 1;
 
   const filteredData = data.filter((client: Client) => {
-    const matchesSearch = !search || 
+    const matchesSearch =
+      !search ||
       client.name.toLowerCase().includes(search.toLowerCase()) ||
       client.email.toLowerCase().includes(search.toLowerCase());
     return matchesSearch;
@@ -49,11 +54,11 @@ export default function ClientsPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => clientAxios.delete(`/clients/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-      toast.success("Cliente eliminado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast.success('Cliente eliminado exitosamente');
     },
     onError: () => {
-      toast.error("Error al eliminar el cliente");
+      toast.error('Error al eliminar el cliente');
     },
   });
 
@@ -80,32 +85,36 @@ export default function ClientsPage() {
 
   const columns = [
     {
-      key: "name",
-      label: "Cliente",
+      key: 'name',
+      label: 'Cliente',
       render: (client: Client) => (
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
             <Users className="w-5 h-5 text-[#600096]" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-gray-900 truncate">{client.name}</p>
+            <p className="font-semibold text-gray-900 truncate">
+              {client.name}
+            </p>
             <p className="text-sm text-gray-500 truncate">{client.email}</p>
           </div>
         </div>
       ),
     },
     {
-      key: "phone",
-      label: "Teléfono",
+      key: 'phone',
+      label: 'Teléfono',
       render: (client: Client) => (
         <span className="text-gray-900">{client.phone}</span>
       ),
     },
     {
-      key: "lastEditedBy",
-      label: "Editado por",
+      key: 'lastEditedBy',
+      label: 'Editado por',
       render: (client: any) => (
-        <span className="text-gray-600">{client.lastEditedBy?.name || "-"}</span>
+        <span className="text-gray-600">
+          {client.lastEditedBy?.name || '-'}
+        </span>
       ),
     },
   ];
@@ -124,7 +133,9 @@ export default function ClientsPage() {
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">👥 Clientes</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            👥 Clientes
+          </h1>
           <p className="text-gray-600 mt-1">
             Gestión de clientes de la inmobiliaria
           </p>
@@ -150,7 +161,7 @@ export default function ClientsPage() {
           />
           {search && (
             <button
-              onClick={() => setSearch("")}
+              onClick={() => setSearch('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X className="h-4 w-4" />
@@ -163,7 +174,11 @@ export default function ClientsPage() {
         data={filteredData}
         columns={columns}
         isLoading={isLoading}
-        emptyMessage={search ? "No se encontraron clientes con los filtros aplicados" : "No hay clientes registrados"}
+        emptyMessage={
+          search
+            ? 'No se encontraron clientes con los filtros aplicados'
+            : 'No hay clientes registrados'
+        }
         actions={(client) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -172,15 +187,21 @@ export default function ClientsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuItem onClick={() => handleView(client)} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => handleView(client)}
+                className="cursor-pointer"
+              >
                 <Eye className="mr-2 h-4 w-4" />
                 Ver
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleEdit(client)} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => handleEdit(client)}
+                className="cursor-pointer"
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => deleteMutation.mutate(client.id)}
                 className="cursor-pointer text-red-600 focus:text-red-600"
               >
@@ -196,7 +217,7 @@ export default function ClientsPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
           <Button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             variant="outline"
             className="h-10 px-4 bg-white hover:bg-gray-50 border-gray-300 disabled:opacity-50"
@@ -208,12 +229,12 @@ export default function ClientsPage() {
               <Button
                 key={p}
                 onClick={() => setPage(p)}
-                variant={page === p ? "default" : "outline"}
+                variant={page === p ? 'default' : 'outline'}
                 className={cn(
-                  "h-10 w-10",
-                  page === p 
-                    ? "bg-[#600096] hover:bg-[#500080] text-white" 
-                    : "bg-white hover:bg-gray-50 border-gray-300 text-gray-700"
+                  'h-10 w-10',
+                  page === p
+                    ? 'bg-[#600096] hover:bg-[#500080] text-white'
+                    : 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700'
                 )}
               >
                 {p}
@@ -221,7 +242,7 @@ export default function ClientsPage() {
             ))}
           </div>
           <Button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             variant="outline"
             className="h-10 px-4 bg-white hover:bg-gray-50 border-gray-300 disabled:opacity-50"
@@ -231,6 +252,11 @@ export default function ClientsPage() {
         </div>
       )}
 
+      <ClientModal
+        open={modalOpen}
+        onOpenChange={handleCloseModal}
+        client={selectedClient}
+      />
       <ClientModal
         open={modalOpen}
         onOpenChange={handleCloseModal}
