@@ -1,9 +1,33 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle } from 'lucide-react';
 
-export function WhatsAppFloat() {
+interface WhatsAppFloatProps {
+  propertyName?: string;
+  propertyAddress?: string;
+  propertyPrice?: number;
+  propertyUrl?: string;
+}
+
+export function WhatsAppFloat({
+  propertyName,
+  propertyAddress,
+  propertyPrice,
+  propertyUrl,
+}: WhatsAppFloatProps) {
   const handleWhatsAppClick = () => {
-    const message = "Hola, me interesa obtener más información sobre las propiedades disponibles.";
-    const phoneNumber = "5493816625078";
+    let message;
+    if (propertyName && propertyAddress && propertyPrice && propertyUrl) {
+      message = `Hola! Estoy interesado en esta propiedad:
+
+*${propertyName}*
+Ubicación: ${propertyAddress}
+Precio: $${propertyPrice.toLocaleString()}
+
+${propertyUrl}`;
+    } else {
+      message =
+        'Hola, me interesa obtener más información sobre las propiedades disponibles.';
+    }
+    const phoneNumber = '5493816625078';
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
