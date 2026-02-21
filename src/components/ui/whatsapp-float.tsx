@@ -1,4 +1,5 @@
 import { MessageCircle } from 'lucide-react';
+import { getWhatsAppNumber } from '@/utils/whatsappNumber';
 
 interface WhatsAppFloatProps {
   propertyName?: string;
@@ -27,7 +28,7 @@ ${propertyUrl}`;
       message =
         'Hola, me interesa obtener más información sobre las propiedades disponibles.';
     }
-    const phoneNumber = '5493816625078';
+    const phoneNumber = getWhatsAppNumber();
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };

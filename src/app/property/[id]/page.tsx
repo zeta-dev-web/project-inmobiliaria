@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { use } from 'react';
+import { getWhatsAppNumber } from '@/utils/whatsappNumber';
 
 interface PropertyPageProps {
   params: Promise<{ id: string }>;
@@ -70,8 +71,9 @@ Ubicación: ${property?.address}
 Precio: $${property?.price.toLocaleString()}
 
 ${url}`;
+    const phoneNumber = getWhatsAppNumber();
     window.open(
-      `https://wa.me/5493814018196?text=${encodeURIComponent(message)}`,
+      `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
       '_blank'
     );
   };
@@ -147,7 +149,7 @@ ${url}`;
               {property.photos && property.photos.length > 0 ? (
                 <div>
                   {/* Main Photo */}
-                  <div 
+                  <div
                     className="aspect-video bg-gray-200 relative cursor-pointer"
                     onClick={() => setFullscreenOpen(true)}
                   >
@@ -333,8 +335,9 @@ Ubicación: ${property?.address}
 Precio: $${property?.price.toLocaleString()}
 
 ${window.location.href}`;
+                            const phoneNumber = getWhatsAppNumber();
                             window.open(
-                              `https://wa.me/5493816625078?text=${encodeURIComponent(message)}`,
+                              `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
                               '_blank'
                             );
                           }}
@@ -373,8 +376,9 @@ Ubicación: ${property?.address}
 Precio: $${property?.price.toLocaleString()}
 
 ${window.location.href}`;
+                            const phoneNumber = getWhatsAppNumber();
                             window.open(
-                              `https://wa.me/5493814018196?text=${encodeURIComponent(message)}`,
+                              `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
                               '_blank'
                             );
                           }}
@@ -491,7 +495,7 @@ ${window.location.href}`;
               alt={`${property.name} - Foto ${selectedPhoto + 1}`}
               className="max-w-full max-h-full object-contain"
             />
-            
+
             {property.photos && property.photos.length > 1 && (
               <>
                 <button
