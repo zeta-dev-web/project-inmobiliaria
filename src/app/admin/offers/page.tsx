@@ -336,7 +336,7 @@ export default function OffersPage() {
                   className="cursor-pointer"
                 >
                   <Eye className="mr-2 h-4 w-4" />
-                  Ver pública
+                  Ver publicación
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
