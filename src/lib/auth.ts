@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   pages: {
-    signIn: '/auth',
+    signIn: '/login',
   },
   callbacks: {
     async jwt({ token, user }) {

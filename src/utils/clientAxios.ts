@@ -26,7 +26,7 @@ clientAxios.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized
-      window.location.href = '/auth';
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

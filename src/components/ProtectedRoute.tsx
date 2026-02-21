@@ -9,14 +9,17 @@ interface ProtectedRouteProps {
   requiredRole?: 'ADMIN' | 'USER';
 }
 
-export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requiredRole,
+}: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, role } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        router.push('/auth');
+        router.push('/login');
       } else if (requiredRole && role !== requiredRole) {
         router.push('/unauthorized');
       }

@@ -1,36 +1,49 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import clientAxios from "@/utils/clientAxios";
-import { Property } from "@/generated/prisma";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Building2, MapPin, Eye, Search, Grid3X3, List, X } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Footer } from "@/components/ui/footer";
-import { WhatsAppFloat } from "@/components/ui/whatsapp-float";
-import { useAuth } from "@/hooks/useAuth";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useQuery } from '@tanstack/react-query';
+import clientAxios from '@/utils/clientAxios';
+import { Property } from '@/generated/prisma';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Building2, MapPin, Eye, Search, Grid3X3, List, X } from 'lucide-react';
+import { useState } from 'react';
+import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Footer } from '@/components/ui/footer';
+import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
+import { useAuth } from '@/hooks/useAuth';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 type PublicProperty = Property & {
   photos?: { id: string; url: string }[];
 };
 
-import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { Breadcrumb } from '@/components/ui/breadcrumb';
 
 export default function PropiedadesPage() {
-  const { user } = useAuth();
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [sortBy, setSortBy] = useState("asc");
+  const { user, isAuthenticated } = useAuth();
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [sortBy, setSortBy] = useState('asc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: propertiesData, isLoading } = useQuery({
-    queryKey: ["public-properties", search, typeFilter, sortBy, currentPage, viewMode],
+    queryKey: [
+      'public-properties',
+      search,
+      typeFilter,
+      sortBy,
+      currentPage,
+      viewMode,
+    ],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
@@ -39,13 +52,17 @@ export default function PropiedadesPage() {
       params.append('order', sortBy);
       params.append('page', currentPage.toString());
       params.append('limit', viewMode === 'grid' ? '12' : '10');
-      
-      const { data } = await clientAxios.get(`/properties?${params.toString()}`);
-      const filteredData = data.data.filter((property: any) => property.published && property.status === 'AVAILABLE');
+
+      const { data } = await clientAxios.get(
+        `/properties?${params.toString()}`
+      );
+      const filteredData = data.data.filter(
+        (property: any) => property.published && property.status === 'AVAILABLE'
+      );
       return {
         data: filteredData,
         totalPages: data.totalPages,
-        currentPage: data.currentPage
+        currentPage: data.currentPage,
       };
     },
   });
@@ -54,9 +71,9 @@ export default function PropiedadesPage() {
   const totalPages = propertiesData?.totalPages || 1;
 
   const clearFilters = () => {
-    setSearch("");
-    setTypeFilter("");
-    setSortBy("asc");
+    setSearch('');
+    setTypeFilter('');
+    setSortBy('asc');
     setCurrentPage(1);
   };
 
@@ -65,18 +82,34 @@ export default function PropiedadesPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const breadcrumbItems = user?.role === "ADMIN" 
-    ? [{ label: "Dashboard", href: "/" }, { label: "Propiedades" }]
-    : [{ label: "Propiedades" }];
+  const breadcrumbItems =
+    user?.role === 'ADMIN'
+      ? [{ label: 'Dashboard', href: '/admin' }, { label: 'Propiedades' }]
+      : [{ label: 'Propiedades' }];
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-md border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-3">
-            <img src="/favicon-32x32.png" alt="Polar Inmobiliaria" className="w-8 h-8" />
-            <h1 className="text-xl font-bold text-gray-900">Polar Inmobiliaria</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <img
+                src="/favicon-32x32.png"
+                alt="Polar Inmobiliaria"
+                className="w-8 h-8"
+              />
+              <h1 className="text-xl font-bold text-gray-900">
+                Polar Inmobiliaria
+              </h1>
+            </div>
+            {!isAuthenticated && (
+              <Link href="/login">
+                <Button className="bg-[#600096] hover:bg-[#4a0075] text-white">
+                  Iniciar Sesión
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -89,15 +122,19 @@ export default function PropiedadesPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Propiedades Disponibles</h1>
-              <p className="text-gray-600">Encuentra tu hogar ideal con nuestra ayuda</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Propiedades Disponibles
+              </h1>
+              <p className="text-gray-600">
+                Encuentra tu hogar ideal con nuestra ayuda
+              </p>
             </div>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'grid' 
-                    ? 'bg-[#600096] text-white' 
+                  viewMode === 'grid'
+                    ? 'bg-[#600096] text-white'
                     : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                 }`}
               >
@@ -106,8 +143,8 @@ export default function PropiedadesPage() {
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'list' 
-                    ? 'bg-[#600096] text-white' 
+                  viewMode === 'list'
+                    ? 'bg-[#600096] text-white'
                     : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                 }`}
               >
@@ -130,7 +167,7 @@ export default function PropiedadesPage() {
                 className="pl-10"
               />
             </div>
-            
+
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Tipo de propiedad" />
@@ -170,13 +207,20 @@ export default function PropiedadesPage() {
         {isLoading ? (
           <LoadingSpinner message="Cargando propiedades..." />
         ) : (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-            : "space-y-4"
-          }>
-            {properties?.map((property: PublicProperty) => (
+          <div
+            className={
+              viewMode === 'grid'
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+                : 'space-y-4'
+            }
+          >
+            {properties?.map((property: PublicProperty) =>
               viewMode === 'grid' ? (
-                <Link key={property.id} href={`/property/${property.id}`} className="block">
+                <Link
+                  key={property.id}
+                  href={`/property/${property.id}`}
+                  className="block"
+                >
                   <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-[420px] flex flex-col">
                     {/* Property Image */}
                     <div className="h-48 bg-gray-200 relative flex-shrink-0">
@@ -192,11 +236,15 @@ export default function PropiedadesPage() {
                         </div>
                       )}
                       <div className="absolute top-3 left-3">
-                        <Badge 
-                          variant="outline" 
-                          className={property.type === "RENT" ? "bg-blue-600 text-white border-blue-600" : "bg-green-600 text-white border-green-600"}
+                        <Badge
+                          variant="outline"
+                          className={
+                            property.type === 'RENT'
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-green-600 text-white border-green-600'
+                          }
                         >
-                          {property.type === "RENT" ? "Alquiler" : "Venta"}
+                          {property.type === 'RENT' ? 'Alquiler' : 'Venta'}
                         </Badge>
                       </div>
                       {property.photos && property.photos.length > 1 && (
@@ -211,21 +259,24 @@ export default function PropiedadesPage() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-2 h-7 line-clamp-1">
                         {property.name}
                       </h3>
-                      
+
                       <div className="flex items-center text-gray-600 mb-3 h-5">
                         <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span className="text-sm line-clamp-1">{property.address}</span>
+                        <span className="text-sm line-clamp-1">
+                          {property.address}
+                        </span>
                       </div>
 
                       <div className="mb-4">
                         <p className="text-2xl font-bold text-[#600096]">
                           ${property.price.toLocaleString()}
                         </p>
-                        {property.type === "SALE" && property.saleCommission && (
-                          <p className="text-xs text-gray-500">
-                            Comisión: {property.saleCommission}%
-                          </p>
-                        )}
+                        {property.type === 'SALE' &&
+                          property.saleCommission && (
+                            <p className="text-xs text-gray-500">
+                              Comisión: {property.saleCommission}%
+                            </p>
+                          )}
                       </div>
 
                       <div className="flex-1">
@@ -239,7 +290,11 @@ export default function PropiedadesPage() {
                   </div>
                 </Link>
               ) : (
-                <Link key={property.id} href={`/property/${property.id}`} className="block">
+                <Link
+                  key={property.id}
+                  href={`/property/${property.id}`}
+                  className="block"
+                >
                   <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-28">
                     <div className="flex h-full">
                       {/* Property Image */}
@@ -269,17 +324,19 @@ export default function PropiedadesPage() {
                             <h3 className="text-base font-semibold text-gray-900 line-clamp-1 flex-1 mr-2">
                               {property.name}
                             </h3>
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs flex-shrink-0 ${property.type === "RENT" ? "bg-blue-600 text-white border-blue-600" : "bg-green-600 text-white border-green-600"}`}
+                            <Badge
+                              variant="outline"
+                              className={`text-xs flex-shrink-0 ${property.type === 'RENT' ? 'bg-blue-600 text-white border-blue-600' : 'bg-green-600 text-white border-green-600'}`}
                             >
-                              {property.type === "RENT" ? "Alquiler" : "Venta"}
+                              {property.type === 'RENT' ? 'Alquiler' : 'Venta'}
                             </Badge>
                           </div>
-                          
+
                           <div className="flex items-center text-gray-600 mb-2">
                             <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
-                            <span className="text-xs line-clamp-1">{property.address}</span>
+                            <span className="text-xs line-clamp-1">
+                              {property.address}
+                            </span>
                           </div>
                         </div>
 
@@ -302,15 +359,19 @@ export default function PropiedadesPage() {
                   </div>
                 </Link>
               )
-            ))}
+            )}
           </div>
         )}
 
         {properties && properties.length === 0 && (
           <div className="text-center py-12">
             <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No se encontraron propiedades</h3>
-            <p className="text-gray-600">Intenta ajustar los filtros de búsqueda</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No se encontraron propiedades
+            </h3>
+            <p className="text-gray-600">
+              Intenta ajustar los filtros de búsqueda
+            </p>
           </div>
         )}
 
@@ -325,11 +386,12 @@ export default function PropiedadesPage() {
               >
                 Anterior
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const page = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                const page =
+                  Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
                 if (page > totalPages) return null;
-                
+
                 return (
                   <button
                     key={page}
@@ -344,7 +406,7 @@ export default function PropiedadesPage() {
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}

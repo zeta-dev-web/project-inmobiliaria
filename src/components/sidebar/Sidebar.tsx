@@ -34,7 +34,7 @@ export function AppSidebar() {
   const { data: session } = useSession();
 
   const handleLogout = () => {
-    signOut({ callbackUrl: '/auth' });
+    signOut({ callbackUrl: '/' });
   };
 
   const getUserInitials = (name?: string | null) => {
@@ -189,11 +189,11 @@ export function AppSidebar() {
               <DropdownMenuContent
                 side="top"
                 align="end"
-                className="w-[--radix-dropdown-menu-trigger-width]"
+                className="w-[--radix-dropdown-menu-trigger-width] bg-white"
               >
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-gray-900 hover:bg-gray-100"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Cerrar sesión

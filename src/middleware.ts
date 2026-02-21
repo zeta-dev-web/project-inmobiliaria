@@ -7,8 +7,8 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // If accessing admin routes or home, require admin role
-        if (req.nextUrl.pathname.startsWith("/admin") || req.nextUrl.pathname === "/") {
+        // If accessing admin routes, require admin role
+        if (req.nextUrl.pathname.startsWith("/admin")) {
           return token?.role === "ADMIN";
         }
         // For other protected routes, just require authentication
@@ -19,5 +19,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/"]
+  matcher: ["/admin/:path*", "/dashboard/:path*"]
 };
