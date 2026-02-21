@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { uploadFile } from "@/utils/uploadFile";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { uploadFile } from '@/utils/uploadFile';
+import { apiErrorHandler } from '@/utils/handlers/apiError.handler';
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
@@ -17,7 +17,10 @@ export async function POST(
     const files = formData.getAll('photos') as File[];
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ message: "No se enviaron archivos" }, { status: 400 });
+      return NextResponse.json(
+        { message: 'No se enviaron archivos' },
+        { status: 400 }
+      );
     }
 
     const property = await prisma.property.findUnique({
@@ -26,7 +29,10 @@ export async function POST(
     });
 
     if (!property) {
-      return NextResponse.json({ message: "Propiedad no encontrada" }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Propiedad no encontrada' },
+        { status: 404 }
+      );
     }
 
     if (property.photos.length + files.length > MAX_PHOTOS) {
@@ -39,22 +45,27 @@ export async function POST(
     for (const file of files) {
       if (!ALLOWED_TYPES.includes(file.type)) {
         return NextResponse.json(
-          { message: "Solo se permiten archivos JPG o PNG" },
+          { message: 'Solo se permiten archivos JPG o PNG' },
           { status: 400 }
         );
       }
 
       if (file.size > MAX_FILE_SIZE) {
         return NextResponse.json(
-          { message: "El tamaño máximo por foto es 15MB" },
+          { message: 'El tamaño máximo por foto es 15MB' },
           { status: 400 }
         );
       }
     }
 
     const uploadedPhotos = [];
-    for (const file of files) {
-      const url = await uploadFile(file, 'properties', `property-${id}`);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const url = await uploadFile(
+        file,
+        'properties',
+        `property-${id}-${Date.now()}-${i}`
+      );
       const photo = await prisma.propertyPhoto.create({
         data: {
           propertyId: id,
@@ -80,7 +91,10 @@ export async function DELETE(
     const photoId = searchParams.get('photoId');
 
     if (!photoId) {
-      return NextResponse.json({ message: "ID de foto requerido" }, { status: 400 });
+      return NextResponse.json(
+        { message: 'ID de foto requerido' },
+        { status: 400 }
+      );
     }
 
     const photo = await prisma.propertyPhoto.findUnique({
@@ -88,14 +102,17 @@ export async function DELETE(
     });
 
     if (!photo || photo.propertyId !== id) {
-      return NextResponse.json({ message: "Foto no encontrada" }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Foto no encontrada' },
+        { status: 404 }
+      );
     }
 
     await prisma.propertyPhoto.delete({
       where: { id: photoId },
     });
 
-    return NextResponse.json({ message: "Foto eliminada" });
+    return NextResponse.json({ message: 'Foto eliminada' });
   } catch (error) {
     return apiErrorHandler(error);
   }
