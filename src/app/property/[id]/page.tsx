@@ -23,6 +23,7 @@ import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 type PublicProperty = Property & {
   client?: { name: string; email: string; phone: string };
@@ -46,6 +47,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   const { id } = use(params);
   const { user } = useAuth();
   const [selectedPhoto, setSelectedPhoto] = useState(0);
+  const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
   const {
     data: property,
@@ -145,7 +147,10 @@ ${url}`;
               {property.photos && property.photos.length > 0 ? (
                 <div>
                   {/* Main Photo */}
-                  <div className="aspect-video bg-gray-200 relative">
+                  <div 
+                    className="aspect-video bg-gray-200 relative cursor-pointer"
+                    onClick={() => setFullscreenOpen(true)}
+                  >
                     <img
                       src={property.photos[selectedPhoto]?.url}
                       alt={`${property.name} - Foto principal`}
@@ -476,6 +481,51 @@ ${window.location.href}`;
         propertyPrice={property.price}
         propertyUrl={`${window.location.origin}/property/${id}`}
       />
+
+      {/* Fullscreen Photo Dialog */}
+      <Dialog open={fullscreenOpen} onOpenChange={setFullscreenOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black border-0">
+          <div className="relative w-full h-[95vh] flex items-center justify-center">
+            <img
+              src={property.photos?.[selectedPhoto]?.url}
+              alt={`${property.name} - Foto ${selectedPhoto + 1}`}
+              className="max-w-full max-h-full object-contain"
+            />
+            
+            {property.photos && property.photos.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedPhoto((prev) =>
+                      prev === 0 ? property.photos!.length - 1 : prev - 1
+                    );
+                  }}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedPhoto((prev) =>
+                      prev === property.photos!.length - 1 ? 0 : prev + 1
+                    );
+                  }}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg">
+              {selectedPhoto + 1} / {property.photos?.length}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
