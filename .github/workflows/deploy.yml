@@ -28,5 +28,7 @@ jobs:
             npx prisma generate
             npx prisma migrate deploy
             yarn seed
+            mkdir -p public/uploads/properties public/uploads/documents
+            chmod -R 755 public/uploads
             yarn build
             pm2 restart ecosystem.config.js --update-env
