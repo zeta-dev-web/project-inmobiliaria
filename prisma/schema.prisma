@@ -136,6 +136,10 @@ model Client {
   phone             String
   cbu               String?           // CBU para transferencias
   alias             String?           // Alias para transferencias
+  clientType        ClientType        @default(LANDLORD) // Tipo de cliente
+  dni               String?           // DNI (para inquilinos y garantes)
+  workplace         String?           // Lugar de trabajo (para inquilinos y garantes)
+  fiscalAddress     String?           // Domicilio fiscal (para inquilinos y garantes)
   lastEditedById    Int?
   lastEditedBy      User?             @relation("ClientEditedBy", fields: [lastEditedById], references: [id])
   createdAt         DateTime          @default(now())
@@ -144,6 +148,23 @@ model Client {
   rentalsAsLandlord Rental[]          @relation("RentalLandlord")
   guarantorFor      RentalGuarantor[]
   properties        Property[]
+  documents         ClientDocument[]  // Documentos (DNI, recibos de sueldo)
+}
+
+enum ClientType {
+  LANDLORD
+  TENANT
+  GUARANTOR
+}
+
+model ClientDocument {
+  id         String   @id @default(cuid())
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId   String
+  url        String
+  name       String
+  type       String   // "DNI_FRONT", "DNI_BACK", "SALARY_RECEIPT", "OTHER"
+  createdAt  DateTime @default(now())
 }
 
 model Rental {

@@ -1,24 +1,34 @@
-import prisma from "@/lib/prisma";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
-import { updateClientSchema } from "@/lib/zod/client.schema";
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import prisma from '@/lib/prisma';
+import { apiErrorHandler } from '@/utils/handlers/apiError.handler';
+import { updateClientSchema } from '@/lib/zod/client.schema';
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
     const client = await prisma.client.findUnique({
       where: { id },
-      include: { 
+      include: {
         rentalsAsTenant: { include: { property: true } },
         rentalsAsLandlord: { include: { property: true } },
         properties: true,
+        documents: true,
+        lastEditedBy: {
+          select: { name: true },
+        },
       },
     });
 
     if (!client) {
-      return NextResponse.json({ message: "Client not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Client not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(client);
@@ -27,7 +37,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
@@ -38,6 +51,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       where: { id },
       data: {
         ...validatedData,
+        email: validatedData.email || null,
         lastEditedById: session?.user?.id ? Number(session.user.id) : undefined,
       },
     });
@@ -48,14 +62,17 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
     await prisma.client.delete({
       where: { id },
     });
 
-    return NextResponse.json({ message: "Client deleted successfully" });
+    return NextResponse.json({ message: 'Client deleted successfully' });
   } catch (error) {
     return apiErrorHandler(error);
   }

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Property } from "@/generated/prisma";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Building2, MapPin, DollarSign, User, Calendar, Image } from "lucide-react";
 import { cn } from "@/lib/shadcn/utils";
 
@@ -34,7 +35,7 @@ export function PropertyViewModal({ open, onOpenChange, property }: PropertyView
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-white">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Building2 className="h-6 w-6 text-[#600096]" />
@@ -44,7 +45,7 @@ export function PropertyViewModal({ open, onOpenChange, property }: PropertyView
 
         <div className="space-y-6 py-4">
           {/* Información básica */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-semibold text-gray-500 mb-1">Dirección</p>
               <div className="flex items-center gap-2">
@@ -61,7 +62,7 @@ export function PropertyViewModal({ open, onOpenChange, property }: PropertyView
           </div>
 
           {/* Tipo y Precio */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-semibold text-gray-500 mb-1">Tipo</p>
               <Badge 
@@ -135,7 +136,7 @@ export function PropertyViewModal({ open, onOpenChange, property }: PropertyView
           )}
 
           {/* Fechas */}
-          <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <span>Creado: {new Date(property.createdAt).toLocaleDateString()}</span>
@@ -145,6 +146,16 @@ export function PropertyViewModal({ open, onOpenChange, property }: PropertyView
               <span>Actualizado: {new Date(property.updatedAt).toLocaleDateString()}</span>
             </div>
           </div>
+        </div>
+
+        <div className="flex justify-end pt-4 border-t">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cerrar
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

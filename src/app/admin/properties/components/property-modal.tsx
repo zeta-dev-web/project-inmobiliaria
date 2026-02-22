@@ -33,7 +33,7 @@ import clientAxios from '@/utils/clientAxios';
 import { toast } from 'react-toastify';
 import { ClientCombobox } from './client-combobox';
 import { propertySchema, PropertyFormData } from '@/schemas/property.schema';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, Building2 } from 'lucide-react';
 
 interface PropertyModalProps {
   open: boolean;
@@ -218,36 +218,34 @@ export function PropertyModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[95vh] flex flex-col bg-gradient-to-br from-purple-50 to-white shadow-2xl border-2 border-purple-200 !p-0 overflow-hidden">
-        <DialogHeader className="border-b-2 border-purple-200 pb-4 bg-gradient-to-r from-[#600096] to-purple-600 p-6 rounded-t-2xl flex-shrink-0">
-          <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2">
-            {property ? '✏️ Editar Propiedad' : '➕ Nueva Propiedad'}
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Building2 className="h-6 w-6 text-[#600096]" />
+            {property ? 'Editar Propiedad' : 'Nueva Propiedad'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="overflow-y-auto">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6 pt-6 px-6"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700">
+                      <FormLabel className="text-sm font-medium">
                         Nombre *
                       </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Casa en Lomas de Tafi"
-                          className="h-11 border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white"
+                          className="focus-visible:ring-[#600096]"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-600 font-medium" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -257,7 +255,7 @@ export function PropertyModal({
                   name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700">
+                      <FormLabel className="text-sm font-medium">
                         Tipo *
                       </FormLabel>
                       <Select
@@ -265,16 +263,16 @@ export function PropertyModal({
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="h-11 border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white">
+                          <SelectTrigger>
                             <SelectValue placeholder="Seleccionar tipo" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="RENT">🏠 Alquiler</SelectItem>
-                          <SelectItem value="SALE">💰 Venta</SelectItem>
+                          <SelectItem value="RENT">Alquiler</SelectItem>
+                          <SelectItem value="SALE">Venta</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage className="text-red-600 font-medium" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -285,17 +283,17 @@ export function PropertyModal({
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-semibold text-gray-700">
+                    <FormLabel className="text-sm font-medium">
                       Dirección *
                     </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Av. Santa Fe 1234"
-                        className="h-11 border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white"
+                        className="focus-visible:ring-[#600096]"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-600 font-medium" />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -305,14 +303,14 @@ export function PropertyModal({
                 name="clientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-semibold text-gray-700">
+                    <FormLabel className="text-sm font-medium">
                       Cliente *
                     </FormLabel>
                     <ClientCombobox
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <FormMessage className="text-red-600 font-medium" />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -323,26 +321,31 @@ export function PropertyModal({
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700">
+                      <FormLabel className="text-sm font-medium">
                         {watchType === 'RENT'
-                          ? '💵 Precio Alquiler *'
-                          : '💰 Precio Venta *'}
+                          ? 'Precio Alquiler *'
+                          : 'Precio Venta *'}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          type="number"
+                          type="text"
                           placeholder="Ingrese el precio"
-                          className="h-11 border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white"
-                          value={field.value ?? 0}
+                          className="focus-visible:ring-[#600096]"
+                          value={
+                            field.value
+                              ? field.value.toLocaleString('es-AR')
+                              : ''
+                          }
                           onChange={(e) => {
-                            const val = e.target.value;
-                            field.onChange(val === '' ? 0 : parseFloat(val));
+                            const val = e.target.value.replace(/\./g, '');
+                            field.onChange(
+                              val === '' ? undefined : parseFloat(val)
+                            );
                           }}
                           onBlur={field.onBlur}
-                          name={field.name}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-600 font-medium" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -353,25 +356,27 @@ export function PropertyModal({
                     name="saleCommission"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-semibold text-gray-700">
-                          📊 Comisión Venta (%)
+                        <FormLabel className="text-sm font-medium">
+                          Comisión Venta (%)
                         </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             placeholder="Ingrese la comisión"
                             max="100"
-                            className="h-11 border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white"
-                            value={field.value ?? 3}
+                            className="focus-visible:ring-[#600096]"
+                            value={field.value ?? ''}
                             onChange={(e) => {
                               const val = e.target.value;
-                              field.onChange(val === '' ? 0 : parseFloat(val));
+                              field.onChange(
+                                val === '' ? undefined : parseFloat(val)
+                              );
                             }}
                             onBlur={field.onBlur}
                             name={field.name}
                           />
                         </FormControl>
-                        <FormMessage className="text-red-600 font-medium" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -383,17 +388,17 @@ export function PropertyModal({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-semibold text-gray-700">
-                      📝 Descripción
+                    <FormLabel className="text-sm font-medium">
+                      Descripción
                     </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Descripción de la propiedad..."
-                        className="resize-none min-h-[100px] border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white"
+                        className="resize-none min-h-[100px] focus-visible:ring-[#600096]"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-red-600 font-medium" />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -404,30 +409,28 @@ export function PropertyModal({
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700">
-                        🏷️ Estado
+                      <FormLabel className="text-sm font-medium">
+                        Estado
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="h-11 border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white">
+                          <SelectTrigger>
                             <SelectValue placeholder="Seleccionar estado" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="AVAILABLE">
-                            ✅ Disponible
-                          </SelectItem>
-                          <SelectItem value="RENTED">🔒 Alquilada</SelectItem>
-                          <SelectItem value="SOLD">💰 Vendida</SelectItem>
+                          <SelectItem value="AVAILABLE">Disponible</SelectItem>
+                          <SelectItem value="RENTED">Alquilada</SelectItem>
+                          <SelectItem value="SOLD">Vendida</SelectItem>
                           <SelectItem value="UNAVAILABLE">
-                            ❌ No Disponible
+                            No Disponible
                           </SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage className="text-red-600 font-medium" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -440,18 +443,18 @@ export function PropertyModal({
                   name="requirements"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700">
-                        📋 Requerimientos (Opcional)
+                      <FormLabel className="text-sm font-medium">
+                        Requerimientos (Opcional)
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Ej: Recibo de sueldo, garantía propietaria, depósito..."
-                          className="resize-none min-h-[100px] border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white"
+                          className="resize-none min-h-[100px] focus-visible:ring-[#600096]"
                           {...field}
                           value={field.value || ''}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-600 font-medium" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -464,18 +467,18 @@ export function PropertyModal({
                   name="documentation"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700">
-                        📄 Documentación (Opcional)
+                      <FormLabel className="text-sm font-medium">
+                        Documentación (Opcional)
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Ej: Escritura, planos, certificados, documentos legales..."
-                          className="resize-none min-h-[100px] border-2 border-gray-300 focus:border-[#600096] focus:ring-2 focus:ring-purple-200 bg-white"
+                          className="resize-none min-h-[100px] focus-visible:ring-[#600096]"
                           {...field}
                           value={field.value || ''}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-600 font-medium" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -483,8 +486,8 @@ export function PropertyModal({
 
               {/* Sección de fotos mejorada */}
               <div>
-                <FormLabel className="text-sm font-semibold text-gray-700 mb-3 block">
-                  📷 Fotos {!property && '(Opcional)'}
+                <FormLabel className="text-sm font-medium mb-3 block">
+                  Fotos {!property && '(Opcional)'}
                 </FormLabel>
 
                 {/* Zona de arrastre */}
@@ -623,54 +626,26 @@ export function PropertyModal({
           </Form>
         </div>
 
-        {/* Botones fijos en la parte inferior */}
-        <div className="flex-shrink-0 border-t-2 border-purple-200 bg-white p-6">
-          <div className="flex justify-end space-x-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              className="h-11 px-6 border-2 border-gray-300 hover:bg-gray-100 font-semibold"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              onClick={form.handleSubmit(onSubmit)}
-              className="h-11 px-6 bg-gradient-to-r from-[#600096] to-purple-600 hover:from-[#500080] hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {createMutation.isPending || updateMutation.isPending ? (
-                <span className="flex items-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Guardando...
-                </span>
-              ) : property ? (
-                '✓ Actualizar'
-              ) : (
-                '✓ Crear'
-              )}
-            </Button>
-          </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleOpenChange(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            onClick={form.handleSubmit(onSubmit)}
+            className="bg-[#600096] hover:bg-[#500080]"
+            disabled={createMutation.isPending || updateMutation.isPending}
+          >
+            {createMutation.isPending || updateMutation.isPending
+              ? 'Guardando...'
+              : property
+                ? 'Actualizar'
+                : 'Crear'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

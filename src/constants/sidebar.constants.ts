@@ -4,7 +4,6 @@ import {
   Users,
   FileText,
   Home,
-  CreditCard,
   Settings,
   BarChart3,
   UserCog,

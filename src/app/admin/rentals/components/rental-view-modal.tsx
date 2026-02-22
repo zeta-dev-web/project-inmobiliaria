@@ -1,14 +1,22 @@
-"use client";
+'use client';
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Rental, Property, Client } from "@/generated/prisma";
-import { Badge } from "@/components/ui/badge";
-import { Home, User, Users, Calendar, DollarSign, Clock, AlertCircle } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Rental, Property, Client } from '@/generated/prisma';
+import { Badge } from '@/components/ui/badge';
+import {
+  Home,
+  User,
+  Users,
+  Calendar,
+  DollarSign,
+  Clock,
+  AlertCircle,
+} from 'lucide-react';
 
 type RentalWithRelations = Rental & {
   property: Property;
@@ -23,7 +31,11 @@ interface RentalViewModalProps {
   rental?: RentalWithRelations;
 }
 
-export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalProps) {
+export function RentalViewModal({
+  open,
+  onOpenChange,
+  rental,
+}: RentalViewModalProps) {
   if (!rental) return null;
 
   return (
@@ -39,11 +51,13 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
               <Home className="w-5 h-5 text-[#600096]" />
               <h3 className="font-semibold text-gray-900">Propiedad</h3>
             </div>
-            <p className="text-lg font-semibold text-gray-900">{rental.property.name}</p>
+            <p className="text-lg font-semibold text-gray-900">
+              {rental.property.name}
+            </p>
             <p className="text-sm text-gray-600">{rental.property.address}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <User className="w-5 h-5 text-blue-600" />
@@ -72,12 +86,21 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
             </div>
             <div className="space-y-2">
               {rental.guarantors.map((guarantor, index) => (
-                <div key={index} className="flex items-center justify-between bg-white p-3 rounded border">
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-white p-3 rounded border"
+                >
                   <div>
-                    <p className="font-medium text-gray-900">{guarantor.client.name}</p>
-                    <p className="text-sm text-gray-600">{guarantor.client.email || '-'}</p>
+                    <p className="font-medium text-gray-900">
+                      {guarantor.client.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {guarantor.client.email || '-'}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600">{guarantor.client.phone}</p>
+                  <p className="text-sm text-gray-600">
+                    {guarantor.client.phone}
+                  </p>
                 </div>
               ))}
             </div>
@@ -87,9 +110,13 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <DollarSign className="w-5 h-5 text-green-600" />
-                <h3 className="font-semibold text-gray-900">Precio de Alquiler</h3>
+                <h3 className="font-semibold text-gray-900">
+                  Precio de Alquiler
+                </h3>
               </div>
-              <p className="text-2xl font-bold text-gray-900">${rental.rentalPrice.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                ${rental.rentalPrice.toLocaleString()}
+              </p>
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -97,25 +124,33 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
                 <AlertCircle className="w-5 h-5 text-red-600" />
                 <h3 className="font-semibold text-gray-900">Multa por Mora</h3>
               </div>
-              <p className="text-2xl font-bold text-gray-900">${rental.lateFee.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                ${rental.lateFee.toLocaleString()}
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-5 h-5 text-blue-600" />
                 <h3 className="font-semibold text-gray-900">Actualización</h3>
               </div>
-              <p className="text-lg font-semibold text-gray-900">{rental.updateFrequency} meses</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {rental.updateFrequency} meses
+              </p>
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-purple-600" />
-                <h3 className="font-semibold text-gray-900">Día de Vencimiento</h3>
+                <h3 className="font-semibold text-gray-900">
+                  Día de Vencimiento
+                </h3>
               </div>
-              <p className="text-lg font-semibold text-gray-900">Día {rental.paymentDueDay}</p>
+              <p className="text-lg font-semibold text-gray-900">
+                Día {rental.paymentDueDay}
+              </p>
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -124,10 +159,9 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
                 <h3 className="font-semibold text-gray-900">Administración</h3>
               </div>
               <p className="text-lg font-semibold text-gray-900">
-                {rental.administrationType === "PERCENTAGE" 
-                  ? `${rental.administrationAmount}%` 
-                  : `$${rental.administrationAmount.toLocaleString()}`
-                }
+                {rental.administrationType === 'PERCENTAGE'
+                  ? `${rental.administrationAmount}%`
+                  : `$${rental.administrationAmount.toLocaleString()}`}
               </p>
             </div>
           </div>
@@ -138,15 +172,21 @@ export function RentalViewModal({ open, onOpenChange, rental }: RentalViewModalP
                 <Calendar className="w-5 h-5 text-green-600" />
                 <h3 className="font-semibold text-gray-900">Fecha de Inicio</h3>
               </div>
-              <p className="text-gray-900">{new Date(rental.startDate).toLocaleDateString()}</p>
+              <p className="text-gray-900">
+                {new Date(rental.startDate).toLocaleDateString()}
+              </p>
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-red-600" />
-                <h3 className="font-semibold text-gray-900">Fecha de Vencimiento</h3>
+                <h3 className="font-semibold text-gray-900">
+                  Fecha de Vencimiento
+                </h3>
               </div>
-              <p className="text-gray-900">{new Date(rental.endDate).toLocaleDateString()}</p>
+              <p className="text-gray-900">
+                {new Date(rental.endDate).toLocaleDateString()}
+              </p>
             </div>
           </div>
         </div>

@@ -1,10 +1,13 @@
-import prisma from "@/lib/prisma";
-import { apiErrorHandler } from "@/utils/handlers/apiError.handler";
-import { createClientSchema } from "@/lib/zod/client.schema";
-import { getPaginationParams, createPaginatedResponse } from "@/utils/pagination";
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import prisma from '@/lib/prisma';
+import { apiErrorHandler } from '@/utils/handlers/apiError.handler';
+import { createClientSchema } from '@/lib/zod/client.schema';
+import {
+  getPaginationParams,
+  createPaginatedResponse,
+} from '@/utils/pagination';
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
@@ -15,6 +18,7 @@ export async function POST(req: Request) {
     const client = await prisma.client.create({
       data: {
         ...validatedData,
+        email: validatedData.email || null,
         lastEditedById: session?.user?.id ? Number(session.user.id) : undefined,
       },
     });
@@ -29,16 +33,18 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const { page, limit, search } = getPaginationParams(searchParams);
-    
+
     const skip = (page - 1) * limit;
-    
-    const where = search ? {
-      OR: [
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { email: { contains: search, mode: 'insensitive' as const } },
-        { phone: { contains: search, mode: 'insensitive' as const } },
-      ],
-    } : {};
+
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { email: { contains: search, mode: 'insensitive' as const } },
+            { phone: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
 
     const [clients, totalRecords] = await Promise.all([
       prisma.client.findMany({
@@ -48,14 +54,19 @@ export async function GET(req: Request) {
         orderBy: { createdAt: 'desc' },
         include: {
           lastEditedBy: {
-            select: { name: true }
-          }
-        }
+            select: { name: true },
+          },
+        },
       }),
       prisma.client.count({ where }),
     ]);
 
-    const response = createPaginatedResponse(clients, totalRecords, page, limit);
+    const response = createPaginatedResponse(
+      clients,
+      totalRecords,
+      page,
+      limit
+    );
     return NextResponse.json(response);
   } catch (error) {
     return apiErrorHandler(error);

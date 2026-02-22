@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { ReactNode } from "react";
-import { cn } from "@/lib/shadcn/utils";
+import { ReactNode } from 'react';
+import { cn } from '@/lib/shadcn/utils';
 
 interface Column<T> {
   key: string;
@@ -30,7 +30,7 @@ export function ModernTable<T extends { id: string | number }>({
   actions,
   extras,
   isLoading,
-  emptyMessage = "No hay datos disponibles",
+  emptyMessage = 'No hay datos disponibles',
   getRowClassName,
 }: ModernTableProps<T>) {
   if (isLoading) {
@@ -59,8 +59,8 @@ export function ModernTable<T extends { id: string | number }>({
           <div
             key={item.id}
             className={cn(
-              "bg-white rounded-xl shadow-sm overflow-hidden",
-              getRowClassName?.(item) || "border border-gray-200"
+              'bg-white rounded-xl shadow-sm overflow-hidden',
+              getRowClassName?.(item) || 'border border-gray-200'
             )}
           >
             <table className="w-full">
@@ -69,9 +69,8 @@ export function ModernTable<T extends { id: string | number }>({
                   {columns.map((column) => (
                     <th
                       key={column.key}
-                      style={{ width: column.width }}
                       className={cn(
-                        "px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider",
+                        'px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider',
                         column.className
                       )}
                     >
@@ -79,7 +78,7 @@ export function ModernTable<T extends { id: string | number }>({
                     </th>
                   ))}
                   {actions && (
-                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-[80px]">
                       Acciones
                     </th>
                   )}
@@ -94,15 +93,17 @@ export function ModernTable<T extends { id: string | number }>({
                 <tr
                   onClick={() => onRowClick?.(item)}
                   className={cn(
-                    "hover:bg-gray-50 transition-colors",
-                    onRowClick && "cursor-pointer"
+                    'hover:bg-gray-50 transition-colors',
+                    onRowClick && 'cursor-pointer'
                   )}
                 >
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      style={{ width: column.width }}
-                      className={cn("px-6 py-4 text-sm text-gray-900", column.className)}
+                      className={cn(
+                        'px-6 py-4 text-sm text-gray-900',
+                        column.className
+                      )}
                     >
                       {column.render
                         ? column.render(item)
@@ -110,7 +111,7 @@ export function ModernTable<T extends { id: string | number }>({
                     </td>
                   ))}
                   {actions && (
-                    <td className="px-6 py-4 text-center text-sm">
+                    <td className="px-4 py-4 text-center text-sm w-[80px]">
                       {actions(item)}
                     </td>
                   )}
@@ -132,57 +133,56 @@ export function ModernTable<T extends { id: string | number }>({
           <div
             key={item.id}
             className={cn(
-              "bg-white rounded-xl shadow-sm overflow-hidden transition-all",
-              getRowClassName?.(item) || "border border-gray-200"
+              'bg-white rounded-xl shadow-sm overflow-hidden transition-all',
+              getRowClassName?.(item) || 'border border-gray-200'
             )}
           >
             <div className="p-4 space-y-3">
-              {columns.filter(col => !col.hideOnMobile).map((column, idx) => (
-                <div key={column.key}>
-                  {idx === 0 ? (
-                    <div className="pb-3 border-b border-gray-100 flex items-start justify-between gap-3">
-                      <div 
-                        onClick={() => onRowClick?.(item)}
-                        className={cn("flex-1", onRowClick && "cursor-pointer")}
-                      >
-                        {column.render
-                          ? column.render(item)
-                          : (item[column.key as keyof T] as ReactNode)}
-                      </div>
-                      {extras && (
-                        <div className="flex-shrink-0">
-                          {extras(item)}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div 
-                      onClick={() => onRowClick?.(item)}
-                      className={cn(
-                        "flex items-center justify-between gap-3",
-                        onRowClick && "cursor-pointer"
-                      )}
-                    >
-                      <span className="text-xs font-medium text-gray-500 uppercase">
-                        {column.label}
-                      </span>
-                      <div className="text-sm">
-                        {column.render
-                          ? column.render(item)
-                          : (item[column.key as keyof T] as ReactNode)}
-                      </div>
-                    </div>
+              {/* Header con actions/extras siempre visible */}
+              <div className="pb-3 border-b border-gray-100 flex items-start justify-between gap-3">
+                <div
+                  onClick={() => onRowClick?.(item)}
+                  className={cn(
+                    'flex-1 min-w-0',
+                    onRowClick && 'cursor-pointer'
                   )}
+                >
+                  {columns.find((col) => !col.hideOnMobile)?.render
+                    ? columns.find((col) => !col.hideOnMobile)!.render!(item)
+                    : (item[
+                        columns.find((col) => !col.hideOnMobile)?.key as keyof T
+                      ] as ReactNode)}
                 </div>
-              ))}
-              {actions && (
-                <div className="pt-2 border-t border-gray-100">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-medium text-gray-500 uppercase">Acciones</span>
-                    <div className="flex gap-2">{actions(item)}</div>
+                {(actions || extras) && (
+                  <div className="flex-shrink-0 ml-2">
+                    {actions ? actions(item) : extras!(item)}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+
+              {/* Resto de columnas visibles en mobile */}
+              {columns
+                .filter((col) => !col.hideOnMobile)
+                .slice(1)
+                .map((column) => (
+                  <div
+                    key={column.key}
+                    onClick={() => onRowClick?.(item)}
+                    className={cn(
+                      'flex items-center justify-between gap-3',
+                      onRowClick && 'cursor-pointer'
+                    )}
+                  >
+                    <span className="text-xs font-medium text-gray-500 uppercase">
+                      {column.label}
+                    </span>
+                    <div className="text-sm">
+                      {column.render
+                        ? column.render(item)
+                        : (item[column.key as keyof T] as ReactNode)}
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         ))}

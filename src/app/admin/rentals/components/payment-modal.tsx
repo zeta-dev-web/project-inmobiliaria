@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import clientAxios from '@/utils/clientAxios';
+import { useSession } from 'next-auth/react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ import {
   Calendar,
   FileText,
   MessageCircle,
+  Receipt,
 } from 'lucide-react';
 import {
   Select,
@@ -56,29 +58,11 @@ export function PaymentModal({
   rental,
 }: PaymentModalProps) {
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
   const [items, setItems] = useState<PaymentItem[]>([]);
   const [newItem, setNewItem] = useState({ description: '', amount: 0 });
-  const [admins, setAdmins] = useState<any[]>([]);
-  const [loadingAdmins, setLoadingAdmins] = useState(false);
   const [applyLateFee, setApplyLateFee] = useState(false);
   const [calculatedLateFee, setCalculatedLateFee] = useState(0);
-
-  useEffect(() => {
-    if (open) {
-      setLoadingAdmins(true);
-      clientAxios
-        .get('/users?role=ADMIN')
-        .then(({ data }) => {
-          setAdmins(data.users || []);
-        })
-        .catch(() => {
-          toast.error('Error al cargar usuarios');
-        })
-        .finally(() => {
-          setLoadingAdmins(false);
-        });
-    }
-  }, [open]);
 
   const { register, handleSubmit, setValue, watch, reset } =
     useForm<PaymentFormData>({
@@ -218,8 +202,8 @@ export function PaymentModal({
       toast.error('El monto del alquiler debe ser mayor a 0');
       return;
     }
-    if (!data.signedById) {
-      toast.error('Debe seleccionar el usuario que firma');
+    if (!session?.user?.id) {
+      toast.error('No se pudo obtener el usuario actual');
       return;
     }
     setShowConfirmation(true);
@@ -231,7 +215,11 @@ export function PaymentModal({
     if (applyLateFee && calculatedLateFee > 0) {
       finalItems.push({ description: 'Mora', amount: calculatedLateFee });
     }
-    createPayment.mutate({ ...data, items: finalItems });
+    createPayment.mutate({
+      ...data,
+      items: finalItems,
+      signedById: parseInt(session?.user?.id || '0'),
+    });
   };
 
   const handleClose = () => {
@@ -270,8 +258,9 @@ export function PaymentModal({
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Receipt className="h-6 w-6 text-[#600096]" />
             Asentar Pago
           </DialogTitle>
         </DialogHeader>
@@ -394,10 +383,7 @@ export function PaymentModal({
                 <div className="flex justify-between border-t pt-2 mt-2">
                   <span className="text-gray-600">Firmado por:</span>
                   <span className="font-medium">
-                    {
-                      admins.find((a: any) => a.id === watch('signedById'))
-                        ?.name
-                    }
+                    {session?.user?.name || 'Usuario actual'}
                   </span>
                 </div>
               </div>
@@ -632,43 +618,6 @@ export function PaymentModal({
                 placeholder="Observaciones adicionales..."
                 rows={3}
               />
-            </div>
-
-            {/* Usuario que Firma */}
-            <div className="space-y-2">
-              <Label>Firmado por *</Label>
-              <Select
-                onValueChange={(value) =>
-                  setValue('signedById', parseInt(value))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      loadingAdmins
-                        ? 'Cargando...'
-                        : 'Seleccionar usuario admin...'
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingAdmins ? (
-                    <SelectItem value="loading" disabled>
-                      Cargando...
-                    </SelectItem>
-                  ) : admins.length === 0 ? (
-                    <SelectItem value="empty" disabled>
-                      No hay usuarios admin
-                    </SelectItem>
-                  ) : (
-                    admins.map((admin: any) => (
-                      <SelectItem key={admin.id} value={admin.id.toString()}>
-                        {admin.name || admin.email}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
             </div>
 
             {/* Botones */}

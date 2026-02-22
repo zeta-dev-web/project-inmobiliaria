@@ -1,53 +1,61 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Building2, Search, X, Filter } from "lucide-react";
-import { PropertyModal } from "./components/property-modal";
-import { PropertyViewModal } from "./components/property-view-modal";
-import { useQuery } from "@tanstack/react-query";
-import clientAxios from "@/utils/clientAxios";
-import { Property } from "@/generated/prisma";
-import { ModernTable } from "@/components/ui/modern-table";
-import { Badge } from "@/components/ui/badge";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Plus, Building2, Search, X, Filter } from 'lucide-react';
+import { PropertyModal } from './components/property-modal';
+import { PropertyViewModal } from './components/property-view-modal';
+import { useQuery } from '@tanstack/react-query';
+import clientAxios from '@/utils/clientAxios';
+import { Property } from '@/generated/prisma';
+import { ModernTable } from '@/components/ui/modern-table';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, Trash2, Eye } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical, Edit, Trash2, Eye } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { cn } from "@/lib/shadcn/utils";
+import { cn } from '@/lib/shadcn/utils';
 
 async function getProperties(): Promise<Property[]> {
-  const { data } = await clientAxios.get("/properties");
+  const { data } = await clientAxios.get('/properties');
   return data.data || data;
 }
 
 export default function PropertiesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<Property | undefined>();
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [typeFilter, setTypeFilter] = useState<string>("");
+  const [selectedProperty, setSelectedProperty] = useState<
+    Property | undefined
+  >();
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<string>('');
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
-  const { data: response, isLoading, error } = useQuery({
-    queryKey: ["properties", page, search, statusFilter, typeFilter],
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['properties', page, search, statusFilter, typeFilter],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: "10",
+        limit: '10',
         ...(search && { search }),
         ...(statusFilter && { status: statusFilter }),
         ...(typeFilter && { type: typeFilter }),
       });
-      const { data } = await clientAxios.get(`/properties?${params.toString()}`);
+      const { data } = await clientAxios.get(
+        `/properties?${params.toString()}`
+      );
       return data;
     },
   });
@@ -58,11 +66,12 @@ export default function PropertiesPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => clientAxios.delete(`/properties/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
-      toast.success("Propiedad eliminada exitosamente");
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+      toast.success('Propiedad eliminada exitosamente');
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.error || "Error al eliminar la propiedad";
+      const errorMessage =
+        error.response?.data?.error || 'Error al eliminar la propiedad';
       toast.error(errorMessage);
     },
   });
@@ -92,9 +101,9 @@ export default function PropertiesPage() {
   };
 
   const clearFilters = () => {
-    setSearch("");
-    setStatusFilter("");
-    setTypeFilter("");
+    setSearch('');
+    setStatusFilter('');
+    setTypeFilter('');
     setPage(1);
   };
 
@@ -102,41 +111,45 @@ export default function PropertiesPage() {
 
   const columns = [
     {
-      key: "name",
-      label: "Propiedad",
-      width: "35%",
+      key: 'name',
+      label: 'Propiedad',
+      width: '35%',
       render: (property: Property) => (
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
             <Building2 className="w-5 h-5 text-[#600096]" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-gray-900 truncate">{property.name}</p>
+            <p className="font-semibold text-gray-900 truncate">
+              {property.name}
+            </p>
             <p className="text-sm text-gray-500 truncate">{property.address}</p>
           </div>
         </div>
       ),
     },
     {
-      key: "type",
-      label: "Tipo",
-      width: "15%",
+      key: 'type',
+      label: 'Tipo',
+      width: '15%',
       render: (property: Property) => (
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className={cn(
-            "whitespace-nowrap",
-            property.type === "RENT" ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-green-50 text-green-700 border-green-200"
+            'whitespace-nowrap',
+            property.type === 'RENT'
+              ? 'bg-blue-50 text-blue-700 border-blue-200'
+              : 'bg-green-50 text-green-700 border-green-200'
           )}
         >
-          {property.type === "RENT" ? "🏠 Alquiler" : "💰 Venta"}
+          {property.type === 'RENT' ? '🏠 Alquiler' : '💰 Venta'}
         </Badge>
       ),
     },
     {
-      key: "price",
-      label: "Precio",
-      width: "15%",
+      key: 'price',
+      label: 'Precio',
+      width: '15%',
       render: (property: Property) => (
         <span className="font-semibold text-gray-900 whitespace-nowrap">
           ${property.price.toLocaleString()}
@@ -144,31 +157,48 @@ export default function PropertiesPage() {
       ),
     },
     {
-      key: "status",
-      label: "Estado",
-      width: "18%",
+      key: 'status',
+      label: 'Estado',
+      width: '18%',
       render: (property: Property) => {
         const statusConfig = {
-          AVAILABLE: { label: "Disponible", className: "bg-green-100 text-green-800 border-green-200" },
-          RENTED: { label: "Alquilada", className: "bg-blue-100 text-blue-800 border-blue-200" },
-          SOLD: { label: "Vendida", className: "bg-purple-100 text-purple-800 border-purple-200" },
-          UNAVAILABLE: { label: "No Disponible", className: "bg-red-100 text-red-800 border-red-200" },
+          AVAILABLE: {
+            label: 'Disponible',
+            className: 'bg-green-100 text-green-800 border-green-200',
+          },
+          RENTED: {
+            label: 'Alquilada',
+            className: 'bg-blue-100 text-blue-800 border-blue-200',
+          },
+          SOLD: {
+            label: 'Vendida',
+            className: 'bg-purple-100 text-purple-800 border-purple-200',
+          },
+          UNAVAILABLE: {
+            label: 'No Disponible',
+            className: 'bg-red-100 text-red-800 border-red-200',
+          },
         };
-        const config = statusConfig[property.status as keyof typeof statusConfig] || statusConfig.AVAILABLE;
+        const config =
+          statusConfig[property.status as keyof typeof statusConfig] ||
+          statusConfig.AVAILABLE;
         return (
-          <Badge variant="outline" className={cn("whitespace-nowrap", config.className)}>
+          <Badge
+            variant="outline"
+            className={cn('whitespace-nowrap', config.className)}
+          >
             {config.label}
           </Badge>
         );
       },
     },
     {
-      key: "lastEditedBy",
-      label: "Editado por",
-      width: "17%",
+      key: 'lastEditedBy',
+      label: 'Editado',
+      width: '17%',
       render: (property: any) => (
         <span className="text-sm text-gray-600">
-          {property.lastEditedBy?.name || "N/A"}
+          {property.lastEditedBy?.name || 'N/A'}
         </span>
       ),
     },
@@ -188,7 +218,9 @@ export default function PropertiesPage() {
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">🏢 Propiedades</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            🏢 Propiedades
+          </h1>
           <p className="text-gray-600 mt-1">
             Gestión de propiedades en alquiler y venta
           </p>
@@ -219,37 +251,57 @@ export default function PropertiesPage() {
           {/* Filtro por estado */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className={cn(
-                  "h-11 min-w-[160px] justify-between bg-white hover:bg-gray-50 border-gray-300",
-                  statusFilter && "border-[#600096] bg-purple-50 hover:bg-purple-100"
+                  'h-11 min-w-[160px] justify-between bg-white hover:bg-gray-50 border-gray-300',
+                  statusFilter &&
+                    'border-[#600096] bg-purple-50 hover:bg-purple-100'
                 )}
               >
                 <span className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
-                  {statusFilter ? (
-                    statusFilter === "AVAILABLE" ? "Disponible" :
-                    statusFilter === "RENTED" ? "Alquilada" :
-                    statusFilter === "SOLD" ? "Vendida" : "No Disponible"
-                  ) : "Estado"}
+                  {statusFilter
+                    ? statusFilter === 'AVAILABLE'
+                      ? 'Disponible'
+                      : statusFilter === 'RENTED'
+                        ? 'Alquilada'
+                        : statusFilter === 'SOLD'
+                          ? 'Vendida'
+                          : 'No Disponible'
+                    : 'Estado'}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuItem onClick={() => setStatusFilter("")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setStatusFilter('')}
+                className="cursor-pointer"
+              >
                 Todos
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("AVAILABLE")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setStatusFilter('AVAILABLE')}
+                className="cursor-pointer"
+              >
                 ✅ Disponible
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("RENTED")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setStatusFilter('RENTED')}
+                className="cursor-pointer"
+              >
                 🔒 Alquilada
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("SOLD")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setStatusFilter('SOLD')}
+                className="cursor-pointer"
+              >
                 💰 Vendida
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("UNAVAILABLE")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setStatusFilter('UNAVAILABLE')}
+                className="cursor-pointer"
+              >
                 ❌ No Disponible
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -258,29 +310,41 @@ export default function PropertiesPage() {
           {/* Filtro por tipo */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className={cn(
-                  "h-11 min-w-[160px] justify-between bg-white hover:bg-gray-50 border-gray-300",
-                  typeFilter && "border-[#600096] bg-purple-50 hover:bg-purple-100"
+                  'h-11 min-w-[160px] justify-between bg-white hover:bg-gray-50 border-gray-300',
+                  typeFilter &&
+                    'border-[#600096] bg-purple-50 hover:bg-purple-100'
                 )}
               >
                 <span className="flex items-center gap-2">
                   <Building2 className="h-4 w-4" />
-                  {typeFilter ? (
-                    typeFilter === "RENT" ? "Alquiler" : "Venta"
-                  ) : "Tipo"}
+                  {typeFilter
+                    ? typeFilter === 'RENT'
+                      ? 'Alquiler'
+                      : 'Venta'
+                    : 'Tipo'}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuItem onClick={() => setTypeFilter("")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setTypeFilter('')}
+                className="cursor-pointer"
+              >
                 Todos
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTypeFilter("RENT")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setTypeFilter('RENT')}
+                className="cursor-pointer"
+              >
                 🏠 Alquiler
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTypeFilter("SALE")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setTypeFilter('SALE')}
+                className="cursor-pointer"
+              >
                 💰 Venta
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -302,25 +366,50 @@ export default function PropertiesPage() {
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2">
             {search && (
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+              <Badge
+                variant="outline"
+                className="bg-purple-50 text-purple-700 border-purple-200"
+              >
                 Búsqueda: {search}
-                <button onClick={() => setSearch("")} className="ml-2 hover:text-purple-900">
+                <button
+                  onClick={() => setSearch('')}
+                  className="ml-2 hover:text-purple-900"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
             )}
             {statusFilter && (
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                Estado: {statusFilter === "AVAILABLE" ? "Disponible" : statusFilter === "RENTED" ? "Alquilada" : statusFilter === "SOLD" ? "Vendida" : "No Disponible"}
-                <button onClick={() => setStatusFilter("")} className="ml-2 hover:text-purple-900">
+              <Badge
+                variant="outline"
+                className="bg-purple-50 text-purple-700 border-purple-200"
+              >
+                Estado:{' '}
+                {statusFilter === 'AVAILABLE'
+                  ? 'Disponible'
+                  : statusFilter === 'RENTED'
+                    ? 'Alquilada'
+                    : statusFilter === 'SOLD'
+                      ? 'Vendida'
+                      : 'No Disponible'}
+                <button
+                  onClick={() => setStatusFilter('')}
+                  className="ml-2 hover:text-purple-900"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
             )}
             {typeFilter && (
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                Tipo: {typeFilter === "RENT" ? "Alquiler" : "Venta"}
-                <button onClick={() => setTypeFilter("")} className="ml-2 hover:text-purple-900">
+              <Badge
+                variant="outline"
+                className="bg-purple-50 text-purple-700 border-purple-200"
+              >
+                Tipo: {typeFilter === 'RENT' ? 'Alquiler' : 'Venta'}
+                <button
+                  onClick={() => setTypeFilter('')}
+                  className="ml-2 hover:text-purple-900"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -339,7 +428,11 @@ export default function PropertiesPage() {
         data={data}
         columns={columns}
         isLoading={isLoading}
-        emptyMessage={hasActiveFilters ? "No se encontraron propiedades con los filtros aplicados" : "No hay propiedades registradas"}
+        emptyMessage={
+          hasActiveFilters
+            ? 'No se encontraron propiedades con los filtros aplicados'
+            : 'No hay propiedades registradas'
+        }
         actions={(property) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -348,15 +441,21 @@ export default function PropertiesPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuItem onClick={() => handleView(property)} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => handleView(property)}
+                className="cursor-pointer"
+              >
                 <Eye className="mr-2 h-4 w-4" />
                 Ver
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleEdit(property)} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => handleEdit(property)}
+                className="cursor-pointer"
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => deleteMutation.mutate(property.id)}
                 className="cursor-pointer text-red-600 focus:text-red-600"
               >
@@ -372,7 +471,7 @@ export default function PropertiesPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
           <Button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             variant="outline"
             className="h-10 px-4 bg-white hover:bg-gray-50 border-gray-300 disabled:opacity-50"
@@ -384,12 +483,12 @@ export default function PropertiesPage() {
               <Button
                 key={p}
                 onClick={() => setPage(p)}
-                variant={page === p ? "default" : "outline"}
+                variant={page === p ? 'default' : 'outline'}
                 className={cn(
-                  "h-10 w-10",
-                  page === p 
-                    ? "bg-[#600096] hover:bg-[#500080] text-white" 
-                    : "bg-white hover:bg-gray-50 border-gray-300 text-gray-700"
+                  'h-10 w-10',
+                  page === p
+                    ? 'bg-[#600096] hover:bg-[#500080] text-white'
+                    : 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700'
                 )}
               >
                 {p}
@@ -397,7 +496,7 @@ export default function PropertiesPage() {
             ))}
           </div>
           <Button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             variant="outline"
             className="h-10 px-4 bg-white hover:bg-gray-50 border-gray-300 disabled:opacity-50"

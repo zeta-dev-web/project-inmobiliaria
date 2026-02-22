@@ -16,6 +16,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { MoreVertical, Edit, Trash2, Eye } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { cn } from '@/lib/shadcn/utils';
@@ -25,6 +32,7 @@ export default function ClientsPage() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | undefined>();
   const [search, setSearch] = useState('');
+  const [clientTypeFilter, setClientTypeFilter] = useState<string>('ALL');
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
@@ -43,12 +51,14 @@ export default function ClientsPage() {
   const data = response?.data || [];
   const totalPages = response?.totalPages || 1;
 
-  const filteredData = data.filter((client: Client) => {
+  const filteredData = data.filter((client: any) => {
     const matchesSearch =
       !search ||
       client.name.toLowerCase().includes(search.toLowerCase()) ||
       client.email?.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
+    const matchesType =
+      clientTypeFilter === 'ALL' || client.clientType === clientTypeFilter;
+    return matchesSearch && matchesType;
   });
 
   const deleteMutation = useMutation({
@@ -87,6 +97,7 @@ export default function ClientsPage() {
     {
       key: 'name',
       label: 'Cliente',
+      className: 'min-w-[250px]',
       render: (client: Client) => (
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -96,23 +107,52 @@ export default function ClientsPage() {
             <p className="font-semibold text-gray-900 truncate">
               {client.name}
             </p>
-            <p className="text-sm text-gray-500 truncate">{client.email || '-'}</p>
+            <p className="text-sm text-gray-500 truncate">
+              {client.email || '-'}
+            </p>
           </div>
         </div>
       ),
     },
     {
+      key: 'clientType',
+      label: 'Tipo',
+      className: 'w-[120px]',
+      render: (client: any) => {
+        const typeLabels = {
+          LANDLORD: 'Propietario',
+          TENANT: 'Inquilino',
+          GUARANTOR: 'Garante',
+        };
+        const typeColors = {
+          LANDLORD: 'bg-green-100 text-green-800',
+          TENANT: 'bg-blue-100 text-blue-800',
+          GUARANTOR: 'bg-orange-100 text-orange-800',
+        };
+        const type = client.clientType || 'LANDLORD';
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${typeColors[type as keyof typeof typeColors]}`}
+          >
+            {typeLabels[type as keyof typeof typeLabels]}
+          </span>
+        );
+      },
+    },
+    {
       key: 'phone',
       label: 'Teléfono',
+      className: 'w-[140px]',
       render: (client: Client) => (
-        <span className="text-gray-900">{client.phone}</span>
+        <span className="text-gray-900 text-sm">{client.phone}</span>
       ),
     },
     {
       key: 'lastEditedBy',
-      label: 'Editado por',
+      label: 'Editado',
+      className: 'w-[130px]',
       render: (client: any) => (
-        <span className="text-gray-600">
+        <span className="text-gray-600 text-sm">
           {client.lastEditedBy?.name || '-'}
         </span>
       ),
@@ -149,24 +189,37 @@ export default function ClientsPage() {
         </Button>
       </div>
 
-      {/* Buscador */}
+      {/* Buscador y Filtros */}
       <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Buscar por nombre o email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Buscar por nombre o email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <Select value={clientTypeFilter} onValueChange={setClientTypeFilter}>
+            <SelectTrigger className="w-full md:w-[180px] h-11 border-gray-300 focus:border-[#600096] focus:ring-[#600096]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Todos los tipos</SelectItem>
+              <SelectItem value="LANDLORD">Propietarios</SelectItem>
+              <SelectItem value="TENANT">Inquilinos</SelectItem>
+              <SelectItem value="GUARANTOR">Garantes</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
