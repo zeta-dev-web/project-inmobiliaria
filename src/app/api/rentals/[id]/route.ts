@@ -19,7 +19,11 @@ export async function GET(
       where: { id },
       include: {
         property: true,
-        tenant: true,
+        tenants: {
+          include: {
+            client: true,
+          },
+        },
         landlord: true,
         guarantors: {
           include: {
@@ -60,7 +64,7 @@ export async function PUT(
     const body = await request.json();
     const {
       propertyId,
-      tenantId,
+      tenantIds,
       landlordId,
       guarantorIds,
       rentalPrice,
@@ -76,7 +80,8 @@ export async function PUT(
     const errors: Record<string, string> = {};
 
     if (!propertyId) errors.propertyId = 'La propiedad es requerida';
-    if (!tenantId) errors.tenantId = 'El inquilino es requerido';
+    if (!tenantIds || tenantIds.length === 0)
+      errors.tenantIds = 'Al menos un inquilino es requerido';
     if (!landlordId) errors.landlordId = 'El propietario es requerido';
     if (!guarantorIds || guarantorIds.length === 0)
       errors.guarantorIds = 'Al menos un garante es requerido';
@@ -121,6 +126,10 @@ export async function PUT(
       currentMonth = periodEnd + 1;
     }
 
+    await prisma.rentalTenant.deleteMany({
+      where: { rentalId: id },
+    });
+
     await prisma.rentalGuarantor.deleteMany({
       where: { rentalId: id },
     });
@@ -137,7 +146,6 @@ export async function PUT(
       where: { id },
       data: {
         propertyId,
-        tenantId,
         landlordId,
         rentalPrice,
         updateFrequency,
@@ -147,6 +155,11 @@ export async function PUT(
         lateFee,
         administrationAmount,
         administrationType,
+        tenants: {
+          create: tenantIds.map((clientId: string) => ({
+            clientId,
+          })),
+        },
         guarantors: {
           create: guarantorIds.map((clientId: string) => ({
             clientId,
@@ -158,7 +171,11 @@ export async function PUT(
       },
       include: {
         property: true,
-        tenant: true,
+        tenants: {
+          include: {
+            client: true,
+          },
+        },
         landlord: true,
         guarantors: {
           include: {
@@ -210,6 +227,7 @@ export async function DELETE(
     await prisma.payment.deleteMany({ where: { rentalId: id } });
 
     // Eliminar relaciones
+    await prisma.rentalTenant.deleteMany({ where: { rentalId: id } });
     await prisma.rentalGuarantor.deleteMany({ where: { rentalId: id } });
     await prisma.pricePeriod.deleteMany({ where: { rentalId: id } });
     await prisma.notification.deleteMany({ where: { rentalId: id } });

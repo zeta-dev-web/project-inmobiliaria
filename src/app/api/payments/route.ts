@@ -13,7 +13,11 @@ export async function GET(request: Request) {
         rental: {
           include: {
             property: true,
-            tenant: true,
+            tenants: {
+              include: {
+                client: true,
+              },
+            },
             landlord: true,
           },
         },
@@ -108,7 +112,11 @@ export async function POST(request: Request) {
         rental: {
           include: {
             property: true,
-            tenant: true,
+            tenants: {
+              include: {
+                client: true,
+              },
+            },
             landlord: true,
           },
         },

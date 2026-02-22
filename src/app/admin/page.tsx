@@ -87,7 +87,7 @@ export default function AdminPage() {
                           {notif.message}
                         </p>
                         <p className="text-xs text-gray-500 mt-2">
-                          Inquilino: {notif.rental.tenant.name}
+                          Inquilino: {notif.rental.tenants?.map((t: any) => t.client.name).join(', ') || '-'}
                         </p>
                       </div>
                     ))}
@@ -129,7 +129,7 @@ export default function AdminPage() {
                           {notif.message}
                         </p>
                         <p className="text-xs text-gray-500 mt-2">
-                          Inquilino: {notif.rental.tenant.name}
+                          Inquilino: {notif.rental.tenants?.map((t: any) => t.client.name).join(', ') || '-'}
                         </p>
                       </div>
                     ))}

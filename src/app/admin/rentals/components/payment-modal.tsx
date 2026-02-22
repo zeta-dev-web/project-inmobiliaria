@@ -241,8 +241,8 @@ export function PaymentModal({
   };
 
   const handleWhatsApp = () => {
-    if (paymentId && rental?.tenant?.phone) {
-      const phone = rental.tenant.phone.replace(/\D/g, '');
+    if (paymentId && rental?.tenants?.[0]?.client?.phone) {
+      const phone = rental.tenants[0].client.phone.replace(/\D/g, '');
       const formattedPhone = phone.startsWith('54') ? phone : `54${phone}`;
       const receiptUrl = `${window.location.origin}/api/payments/${paymentId}/receipt`;
       const message = `Hola, adjunto el recibo de pago de alquiler. Puede descargarlo desde: ${receiptUrl}`;
@@ -287,7 +287,11 @@ export function PaymentModal({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Inquilino:</span>
-                  <span className="font-medium">{rental.tenant.name}</span>
+                  <span className="font-medium">
+                    {rental.tenants && rental.tenants.length > 0
+                      ? rental.tenants.map((t: any) => t.client.name).join(', ')
+                      : '-'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Mes Correspondiente:</span>
@@ -464,7 +468,9 @@ export function PaymentModal({
                 </p>
                 <p>
                   <span className="font-medium">Inquilino:</span>{' '}
-                  {rental.tenant.name}
+                  {rental.tenants && rental.tenants.length > 0
+                    ? rental.tenants.map((t: any) => t.client.name).join(', ')
+                    : '-'}
                 </p>
                 <p>
                   <span className="font-medium">Precio Base:</span> $

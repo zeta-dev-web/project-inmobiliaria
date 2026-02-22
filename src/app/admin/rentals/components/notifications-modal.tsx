@@ -29,7 +29,7 @@ import n2words from "n2words";
 type RentalWithWarnings = {
   id: string;
   property: { name: string; address: string };
-  tenant: { name: string; phone: string };
+  tenants: Array<{ client: { name: string; phone: string } }>;
   pricePeriods: Array<{ id: string; startMonth: number; endMonth: number; price: number | null }>;
   startDate: string;
   warnings?: { contractExpiring?: string; priceUpdate?: string };
@@ -114,7 +114,7 @@ export function NotificationsModal({
       }
     }
     
-    const phone = rental.tenant.phone.replace(/\D/g, "");
+    const phone = rental.tenants?.[0]?.client?.phone?.replace(/\D/g, "") || "";
     const formattedPhone = phone.startsWith("54") ? phone : `54${phone}`;
     let message = `Buenos Dias, le escribimos de Polar Inmobiliaria respecto a la propiedad ubicada en: ${rental.property.address}. `;
     
@@ -179,7 +179,9 @@ export function NotificationsModal({
                       {rental.property.address}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Inquilino: {rental.tenant.name}
+                      Inquilino: {rental.tenants && rental.tenants.length > 0
+                        ? rental.tenants.map(t => t.client.name).join(', ')
+                        : '-'}
                     </p>
                   </div>
                 </div>

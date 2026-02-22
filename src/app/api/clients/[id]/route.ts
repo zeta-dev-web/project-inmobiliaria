@@ -14,7 +14,7 @@ export async function GET(
     const client = await prisma.client.findUnique({
       where: { id },
       include: {
-        rentalsAsTenant: { include: { property: true } },
+        tenantsFor: { include: { rental: { include: { property: true } } } },
         rentalsAsLandlord: { include: { property: true } },
         properties: true,
         documents: true,

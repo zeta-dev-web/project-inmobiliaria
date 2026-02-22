@@ -20,7 +20,7 @@ import {
 
 type RentalWithRelations = Rental & {
   property: Property;
-  tenant: Client;
+  tenants: Array<{ client: Client }>;
   landlord: Client;
   guarantors: Array<{ client: Client }>;
 };
@@ -57,25 +57,46 @@ export function RentalViewModal({
             <p className="text-sm text-gray-600">{rental.property.address}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <User className="w-5 h-5 text-blue-600" />
-                <h3 className="font-semibold text-gray-900">Inquilino</h3>
-              </div>
-              <p className="text-gray-900">{rental.tenant.name}</p>
-              <p className="text-sm text-gray-600">{rental.tenant.email}</p>
-              <p className="text-sm text-gray-600">{rental.tenant.phone}</p>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <User className="w-5 h-5 text-green-600" />
+              <h3 className="font-semibold text-gray-900">Propietario</h3>
             </div>
+            <p className="text-gray-900">{rental.landlord.name}</p>
+            <p className="text-sm text-gray-600">{rental.landlord.email}</p>
+            <p className="text-sm text-gray-600">{rental.landlord.phone}</p>
+          </div>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <User className="w-5 h-5 text-green-600" />
-                <h3 className="font-semibold text-gray-900">Propietario</h3>
-              </div>
-              <p className="text-gray-900">{rental.landlord.name}</p>
-              <p className="text-sm text-gray-600">{rental.landlord.email}</p>
-              <p className="text-sm text-gray-600">{rental.landlord.phone}</p>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-900">Inquilinos</h3>
+            </div>
+            <div className="space-y-2">
+              {rental.tenants && rental.tenants.length > 0 ? (
+                rental.tenants.map((tenant, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between bg-white p-3 rounded border"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {tenant.client.name}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {tenant.client.email || '-'}
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      {tenant.client.phone}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No hay inquilinos registrados
+                </p>
+              )}
             </div>
           </div>
 
@@ -85,24 +106,30 @@ export function RentalViewModal({
               <h3 className="font-semibold text-gray-900">Garantes</h3>
             </div>
             <div className="space-y-2">
-              {rental.guarantors.map((guarantor, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between bg-white p-3 rounded border"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {guarantor.client.name}
-                    </p>
+              {rental.guarantors && rental.guarantors.length > 0 ? (
+                rental.guarantors.map((guarantor, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between bg-white p-3 rounded border"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {guarantor.client.name}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {guarantor.client.email || '-'}
+                      </p>
+                    </div>
                     <p className="text-sm text-gray-600">
-                      {guarantor.client.email || '-'}
+                      {guarantor.client.phone}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    {guarantor.client.phone}
-                  </p>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No hay garantes registrados
+                </p>
+              )}
             </div>
           </div>
 

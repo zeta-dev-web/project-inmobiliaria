@@ -19,7 +19,11 @@ export async function GET(
         rental: {
           include: {
             property: true,
-            tenant: true,
+            tenants: {
+              include: {
+                client: true,
+              },
+            },
             landlord: true,
             pricePeriods: {
               orderBy: {
@@ -264,7 +268,7 @@ export async function GET(
     </div>
 
     <div class="section">
-      <div class="section-title">Recibí del señor/a: ${payment.rental.tenant.name}, la cantidad de pesos: <strong>${n2words(payment.amount, { lang: 'es' })} ($${payment.amount.toLocaleString('es-AR')})</strong></div>
+      <div class="section-title">Recibí de${payment.rental.tenants && payment.rental.tenants.length > 1 ? ' los señores' : 'l señor/a'}: ${payment.rental.tenants && payment.rental.tenants.length > 0 ? payment.rental.tenants.map(t => t.client.name).join(', ') : '-'}.<br/>La cantidad de pesos: <strong>${n2words(payment.amount, { lang: 'es' })} ($${payment.amount.toLocaleString('es-AR')})</strong></div>
     </div>
 
     <div class="section">
@@ -396,7 +400,7 @@ export async function GET(
       isAdmin
         ? `
     function sendWhatsApp() {
-      const phone = '${payment.rental.tenant.phone.replace(/\D/g, '')}';
+      const phone = '${payment.rental.tenants && payment.rental.tenants.length > 0 ? payment.rental.tenants[0].client.phone.replace(/\D/g, '') : ''}';
       const formattedPhone = phone.startsWith('54') ? phone : '54' + phone;
       const receiptUrl = window.location.href;
       const message = 'Hola, adjunto el recibo de pago de alquiler. Puede descargarlo desde: ' + receiptUrl;

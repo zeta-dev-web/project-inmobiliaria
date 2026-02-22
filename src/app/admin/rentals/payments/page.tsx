@@ -39,7 +39,7 @@ export default function PaymentsHistoryPage() {
       filtered = filtered.filter((payment: any) =>
         payment.rental.property.name.toLowerCase().includes(searchLower) ||
         payment.rental.property.address.toLowerCase().includes(searchLower) ||
-        payment.rental.tenant.name.toLowerCase().includes(searchLower) ||
+        payment.rental.tenants?.some((t: any) => t.client.name.toLowerCase().includes(searchLower)) ||
         payment.receiptNumber.toLowerCase().includes(searchLower)
       );
     }
@@ -59,7 +59,9 @@ export default function PaymentsHistoryPage() {
         case "property":
           return a.rental.property.name.localeCompare(b.rental.property.name);
         case "tenant":
-          return a.rental.tenant.name.localeCompare(b.rental.tenant.name);
+          const aName = a.rental.tenants?.[0]?.client?.name || '';
+          const bName = b.rental.tenants?.[0]?.client?.name || '';
+          return aName.localeCompare(bName);
         default:
           return 0;
       }
@@ -100,7 +102,11 @@ export default function PaymentsHistoryPage() {
       width: "15%",
       hideOnMobile: true,
       render: (payment: any) => (
-        <span className="text-gray-900">{payment.rental.tenant.name}</span>
+        <span className="text-gray-900">
+          {payment.rental.tenants && payment.rental.tenants.length > 0
+            ? payment.rental.tenants.map((t: any) => t.client.name).join(', ')
+            : '-'}
+        </span>
       ),
     },
     {

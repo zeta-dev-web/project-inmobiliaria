@@ -37,7 +37,7 @@ import { DeliveryHistoryModal } from './components/delivery-history-modal';
 
 type RentalWithRelations = Rental & {
   property: { name: string; address: string };
-  tenant: { name: string; phone: string };
+  tenants: Array<{ client: { name: string; phone: string } }>;
   landlord: { name: string };
   guarantors: Array<{ client: { name: string } }>;
   pricePeriods: Array<{
@@ -88,7 +88,9 @@ export default function RentalsPage() {
             rental.property.address
               .toLowerCase()
               .includes(search.toLowerCase()) ||
-            rental.tenant.name.toLowerCase().includes(search.toLowerCase());
+            rental.tenants?.some((t) =>
+              t.client.name.toLowerCase().includes(search.toLowerCase())
+            );
           return matchesSearch;
         })
       : data;
@@ -200,7 +202,11 @@ export default function RentalsPage() {
       width: '15%',
       hideOnMobile: true,
       render: (rental: RentalWithRelations) => (
-        <span className="text-gray-900">{rental.tenant.name}</span>
+        <span className="text-gray-900">
+          {rental.tenants && rental.tenants.length > 0
+            ? rental.tenants.map((t) => t.client.name).join(', ')
+            : '-'}
+        </span>
       ),
     },
     {

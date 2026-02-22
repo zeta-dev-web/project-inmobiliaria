@@ -19,7 +19,11 @@ export async function GET(request: Request) {
         rental: {
           include: {
             property: true,
-            tenant: true,
+            tenants: {
+              include: {
+                client: true,
+              },
+            },
           },
         },
       },
@@ -41,7 +45,9 @@ export async function GET(request: Request) {
         paymentDate: payment.paymentDate,
         periodMonth: payment.periodMonth,
         property: payment.rental.property.address,
-        tenant: payment.rental.tenant.name,
+        tenant: payment.rental.tenants && payment.rental.tenants.length > 0
+          ? payment.rental.tenants.map(t => t.client.name).join(', ')
+          : '-',
       },
     });
   } catch (error) {

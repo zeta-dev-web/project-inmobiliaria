@@ -1,18 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
 
     const [rentals, total] = await Promise.all([
@@ -26,12 +26,16 @@ export async function GET(request: NextRequest) {
               address: true,
             },
           },
-          tenant: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
+          tenants: {
+            include: {
+              client: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  phone: true,
+                },
+              },
             },
           },
           landlord: {
@@ -74,7 +78,7 @@ export async function GET(request: NextRequest) {
           },
         },
         orderBy: {
-          createdAt: "desc",
+          createdAt: 'desc',
         },
       }),
       prisma.rental.count(),
@@ -84,14 +88,16 @@ export async function GET(request: NextRequest) {
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    const rentalsWithWarnings = rentals.map(rental => {
+    const rentalsWithWarnings = rentals.map((rental) => {
       const warnings: { contractExpiring?: string; priceUpdate?: string } = {};
-      
+
       const endDate = new Date(rental.endDate);
       const startDate = new Date(rental.startDate);
-      
-      const monthsUntilEnd = (endDate.getFullYear() - currentYear) * 12 + (endDate.getMonth() - currentMonth);
-      
+
+      const monthsUntilEnd =
+        (endDate.getFullYear() - currentYear) * 12 +
+        (endDate.getMonth() - currentMonth);
+
       if (monthsUntilEnd >= 0 && monthsUntilEnd <= 2) {
         const day = endDate.getUTCDate();
         const month = endDate.getUTCMonth();
@@ -99,36 +105,50 @@ export async function GET(request: NextRequest) {
         const localDate = new Date(year, month, day);
         warnings.contractExpiring = `El contrato vence el ${localDate.toLocaleDateString('es-AR')}`;
       }
-      
-      const monthsSinceStart = (currentYear - startDate.getFullYear()) * 12 + (currentMonth - startDate.getMonth());
+
+      const monthsSinceStart =
+        (currentYear - startDate.getFullYear()) * 12 +
+        (currentMonth - startDate.getMonth());
       const currentContractMonth = monthsSinceStart + 1;
-      
-      const nextPeriodWithoutPrice = rental.pricePeriods.find(p => 
-        p.price === null && 
-        p.startMonth > currentContractMonth && 
-        p.startMonth <= currentContractMonth + 2
+
+      const nextPeriodWithoutPrice = rental.pricePeriods.find(
+        (p) =>
+          p.price === null &&
+          p.startMonth > currentContractMonth &&
+          p.startMonth <= currentContractMonth + 2
       );
-      
+
       if (nextPeriodWithoutPrice) {
         const updateDate = new Date(startDate);
-        updateDate.setMonth(startDate.getMonth() + nextPeriodWithoutPrice.startMonth - 1);
-        const monthName = updateDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+        updateDate.setMonth(
+          startDate.getMonth() + nextPeriodWithoutPrice.startMonth - 1
+        );
+        const monthName = updateDate.toLocaleDateString('es-ES', {
+          month: 'long',
+          year: 'numeric',
+        });
         warnings.priceUpdate = `Actualización de precio en ${monthName}`;
       } else {
-        const nextPeriodWithPrice = rental.pricePeriods.find(p => 
-          p.price !== null && 
-          p.startMonth > currentContractMonth && 
-          p.startMonth <= currentContractMonth + 2
+        const nextPeriodWithPrice = rental.pricePeriods.find(
+          (p) =>
+            p.price !== null &&
+            p.startMonth > currentContractMonth &&
+            p.startMonth <= currentContractMonth + 2
         );
-        
+
         if (nextPeriodWithPrice) {
           const updateDate = new Date(startDate);
-          updateDate.setMonth(startDate.getMonth() + nextPeriodWithPrice.startMonth - 1);
-          const monthName = updateDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+          updateDate.setMonth(
+            startDate.getMonth() + nextPeriodWithPrice.startMonth - 1
+          );
+          const monthName = updateDate.toLocaleDateString('es-ES', {
+            month: 'long',
+            year: 'numeric',
+          });
           warnings.priceUpdate = `Actualización de precio en ${monthName}`;
         }
       }
-      
+
       return {
         ...rental,
         warnings: Object.keys(warnings).length > 0 ? warnings : undefined,
@@ -142,9 +162,9 @@ export async function GET(request: NextRequest) {
       total,
     });
   } catch (error) {
-    console.error("Error fetching rentals:", error);
+    console.error('Error fetching rentals:', error);
     return NextResponse.json(
-      { error: "Error al obtener los alquileres" },
+      { error: 'Error al obtener los alquileres' },
       { status: 500 }
     );
   }
@@ -154,13 +174,13 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const body = await request.json();
     const {
       propertyId,
-      tenantId,
+      tenantIds,
       landlordId,
       guarantorIds,
       rentalPrice,
@@ -175,17 +195,24 @@ export async function POST(request: NextRequest) {
 
     const errors: Record<string, string> = {};
 
-    if (!propertyId) errors.propertyId = "La propiedad es requerida";
-    if (!tenantId) errors.tenantId = "El inquilino es requerido";
-    if (!landlordId) errors.landlordId = "El propietario es requerido";
-    if (!guarantorIds || guarantorIds.length === 0) errors.guarantorIds = "Al menos un garante es requerido";
-    if (!rentalPrice || rentalPrice <= 0) errors.rentalPrice = "El precio debe ser mayor a 0";
-    if (!updateFrequency || updateFrequency <= 0) errors.updateFrequency = "La frecuencia debe ser mayor a 0";
-    if (!startDate) errors.startDate = "La fecha de inicio es requerida";
-    if (!endDate) errors.endDate = "La fecha de vencimiento es requerida";
-    if (!paymentDueDay || paymentDueDay < 1 || paymentDueDay > 31) errors.paymentDueDay = "El d\u00eda debe estar entre 1 y 31";
-    if (lateFee === undefined || lateFee < 0) errors.lateFee = "La multa no puede ser negativa";
-    if (!administrationAmount || administrationAmount <= 0) errors.administrationAmount = "El monto debe ser mayor a 0";
+    if (!propertyId) errors.propertyId = 'La propiedad es requerida';
+    if (!tenantIds || tenantIds.length === 0)
+      errors.tenantIds = 'Al menos un inquilino es requerido';
+    if (!landlordId) errors.landlordId = 'El propietario es requerido';
+    if (!guarantorIds || guarantorIds.length === 0)
+      errors.guarantorIds = 'Al menos un garante es requerido';
+    if (!rentalPrice || rentalPrice <= 0)
+      errors.rentalPrice = 'El precio debe ser mayor a 0';
+    if (!updateFrequency || updateFrequency <= 0)
+      errors.updateFrequency = 'La frecuencia debe ser mayor a 0';
+    if (!startDate) errors.startDate = 'La fecha de inicio es requerida';
+    if (!endDate) errors.endDate = 'La fecha de vencimiento es requerida';
+    if (!paymentDueDay || paymentDueDay < 1 || paymentDueDay > 31)
+      errors.paymentDueDay = 'El d\u00eda debe estar entre 1 y 31';
+    if (lateFee === undefined || lateFee < 0)
+      errors.lateFee = 'La multa no puede ser negativa';
+    if (!administrationAmount || administrationAmount <= 0)
+      errors.administrationAmount = 'El monto debe ser mayor a 0';
 
     if (Object.keys(errors).length > 0) {
       return NextResponse.json({ errors }, { status: 400 });
@@ -193,14 +220,20 @@ export async function POST(request: NextRequest) {
 
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
-    
+    const totalMonths =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth()) +
+      1;
+
     // Generar períodos de precio
     const pricePeriods = [];
     let currentMonth = 1;
-    
+
     while (currentMonth <= totalMonths) {
-      const periodEnd = Math.min(currentMonth + updateFrequency - 1, totalMonths);
+      const periodEnd = Math.min(
+        currentMonth + updateFrequency - 1,
+        totalMonths
+      );
       pricePeriods.push({
         startMonth: currentMonth,
         endMonth: periodEnd,
@@ -212,7 +245,6 @@ export async function POST(request: NextRequest) {
     const rental = await prisma.rental.create({
       data: {
         propertyId,
-        tenantId,
         landlordId,
         rentalPrice,
         updateFrequency,
@@ -222,6 +254,11 @@ export async function POST(request: NextRequest) {
         lateFee,
         administrationAmount,
         administrationType,
+        tenants: {
+          create: tenantIds.map((clientId: string) => ({
+            clientId,
+          })),
+        },
         guarantors: {
           create: guarantorIds.map((clientId: string) => ({
             clientId,
@@ -233,7 +270,11 @@ export async function POST(request: NextRequest) {
       },
       include: {
         property: true,
-        tenant: true,
+        tenants: {
+          include: {
+            client: true,
+          },
+        },
         landlord: true,
         guarantors: {
           include: {
@@ -245,14 +286,14 @@ export async function POST(request: NextRequest) {
 
     await prisma.property.update({
       where: { id: propertyId },
-      data: { status: "RENTED" },
+      data: { status: 'RENTED' },
     });
 
     return NextResponse.json(rental, { status: 201 });
   } catch (error) {
-    console.error("Error creating rental:", error);
+    console.error('Error creating rental:', error);
     return NextResponse.json(
-      { message: "Error al crear el alquiler" },
+      { message: 'Error al crear el alquiler' },
       { status: 500 }
     );
   }

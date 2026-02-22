@@ -144,7 +144,7 @@ model Client {
   lastEditedBy      User?             @relation("ClientEditedBy", fields: [lastEditedById], references: [id])
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
-  rentalsAsTenant   Rental[]          @relation("RentalTenant")
+  tenantsFor        RentalTenant[]
   rentalsAsLandlord Rental[]          @relation("RentalLandlord")
   guarantorFor      RentalGuarantor[]
   properties        Property[]
@@ -171,8 +171,7 @@ model Rental {
   id                    String         @id @default(cuid())
   property              Property       @relation(fields: [propertyId], references: [id])
   propertyId            String
-  tenant                Client         @relation("RentalTenant", fields: [tenantId], references: [id])
-  tenantId              String
+  tenants               RentalTenant[]
   landlord              Client         @relation("RentalLandlord", fields: [landlordId], references: [id])
   landlordId            String
   guarantors            RentalGuarantor[]
@@ -189,6 +188,15 @@ model Rental {
   notifications         Notification[] // Notificaciones del alquiler
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
+}
+
+model RentalTenant {
+  id        String   @id @default(cuid())
+  rental    Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  rentalId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  createdAt DateTime @default(now())
 }
 
 model RentalGuarantor {

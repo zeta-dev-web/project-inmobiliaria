@@ -12,7 +12,11 @@ export async function POST(req: NextRequest) {
         rental: {
           include: {
             property: true,
-            tenant: true,
+            tenants: {
+              include: {
+                client: true,
+              },
+            },
             landlord: true,
           },
         },

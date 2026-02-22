@@ -44,7 +44,7 @@ export function PaymentHistoryModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900">
             Historial de Pagos - {propertyName}
@@ -58,37 +58,21 @@ export function PaymentHistoryModal({
             No hay pagos registrados
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">
-                    Período
-                  </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">
-                    Monto
-                  </th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-900">
-                    Entregado
-                  </th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-900">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map((payment: any) => (
-                  <tr
-                    key={payment.id}
-                    className="border-b border-gray-100 hover:bg-gray-50"
-                  >
-                    <td className="py-3 px-4 text-gray-900">
+          <div className="space-y-3">
+            {payments.map((payment: any) => (
+              <div
+                key={payment.id}
+                className="border rounded-lg p-4 hover:bg-gray-50"
+              >
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-900">
                       {formatPeriod(payment.periodMonth)}
-                    </td>
-                    <td className="py-3 px-4 text-gray-900 font-semibold">
+                    </div>
+                    <div className="text-lg font-bold text-[#600096] mt-1">
                       ${payment.amount.toLocaleString()}
-                    </td>
-                    <td className="py-3 px-4 text-center">
+                    </div>
+                    <div className="mt-2">
                       <Badge
                         variant="outline"
                         className={
@@ -97,29 +81,29 @@ export function PaymentHistoryModal({
                             : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                         }
                       >
-                        {payment.delivered ? 'Sí' : 'No'}
+                        {payment.delivered
+                          ? 'Entregado'
+                          : 'Pendiente de entrega'}
                       </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          window.open(
-                            `/api/payments/${payment.id}/receipt`,
-                            '_blank'
-                          )
-                        }
-                        className="h-8"
-                      >
-                        <FileText className="h-4 w-4 mr-1" />
-                        Ver Recibo
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      window.open(
+                        `/api/payments/${payment.id}/receipt`,
+                        '_blank'
+                      )
+                    }
+                    className="h-8 w-full sm:w-auto"
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    Ver Recibo
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </DialogContent>

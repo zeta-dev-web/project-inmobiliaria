@@ -76,7 +76,9 @@ export function ReprintReceiptModal({
               </p>
               <p>
                 <span className="font-medium">Inquilino:</span>{' '}
-                {rental.tenant.name}
+                {rental.tenants && rental.tenants.length > 0
+                  ? rental.tenants.map((t: any) => t.client.name).join(', ')
+                  : '-'}
               </p>
             </div>
           </div>

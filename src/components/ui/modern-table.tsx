@@ -138,7 +138,7 @@ export function ModernTable<T extends { id: string | number }>({
             )}
           >
             <div className="p-4 space-y-3">
-              {/* Header con actions/extras siempre visible */}
+              {/* Header con extras siempre visible */}
               <div className="pb-3 border-b border-gray-100 flex items-start justify-between gap-3">
                 <div
                   onClick={() => onRowClick?.(item)}
@@ -153,10 +153,8 @@ export function ModernTable<T extends { id: string | number }>({
                         columns.find((col) => !col.hideOnMobile)?.key as keyof T
                       ] as ReactNode)}
                 </div>
-                {(actions || extras) && (
-                  <div className="flex-shrink-0 ml-2">
-                    {actions ? actions(item) : extras!(item)}
-                  </div>
+                {extras && (
+                  <div className="flex-shrink-0 ml-2">{extras(item)}</div>
                 )}
               </div>
 
@@ -183,6 +181,13 @@ export function ModernTable<T extends { id: string | number }>({
                     </div>
                   </div>
                 ))}
+
+              {/* Actions en fila separada */}
+              {actions && (
+                <div className="pt-2 border-t border-gray-100">
+                  {actions(item)}
+                </div>
+              )}
             </div>
           </div>
         ))}

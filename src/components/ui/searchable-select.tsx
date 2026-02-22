@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect, ReactNode } from "react";
-import { Search, ChevronDown } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/shadcn/utils";
+import { useState, useRef, useEffect, ReactNode } from 'react';
+import { Search, ChevronDown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/shadcn/utils';
 
 interface SearchableSelectOption {
   value: string;
@@ -20,55 +20,67 @@ interface SearchableSelectProps {
   searchPlaceholder?: string;
   emptyMessage?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function SearchableSelect({
   options,
   value,
   onChange,
-  placeholder = "Seleccionar...",
-  searchPlaceholder = "Buscar...",
-  emptyMessage = "No se encontraron resultados",
+  placeholder = 'Seleccionar...',
+  searchPlaceholder = 'Buscar...',
+  emptyMessage = 'No se encontraron resultados',
   className,
+  disabled = false,
 }: SearchableSelectProps) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(search.toLowerCase()) ||
-    option.subtitle?.toLowerCase().includes(search.toLowerCase())
+  const filteredOptions = options.filter(
+    (option) =>
+      option.label.toLowerCase().includes(search.toLowerCase()) ||
+      option.subtitle?.toLowerCase().includes(search.toLowerCase())
   );
 
   const selectedOption = options.find((o) => o.value === value);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div ref={containerRef} className={cn('relative', className)}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-11 px-3 flex items-center justify-between border-2 border-gray-300 rounded-md bg-white hover:border-[#600096] focus:border-[#600096] focus:ring-2 focus:ring-purple-200 transition-colors"
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
+        className={cn(
+          'w-full h-11 px-3 flex items-center justify-between border-2 border-gray-300 rounded-md bg-white transition-colors',
+          disabled
+            ? 'opacity-60 cursor-not-allowed bg-gray-50'
+            : 'hover:border-[#600096] focus:border-[#600096] focus:ring-2 focus:ring-purple-200'
+        )}
       >
         <span className="flex items-center gap-2 text-sm">
           {selectedOption?.icon}
-          <span className={cn("truncate", !selectedOption && "text-gray-500")}>
+          <span className={cn('truncate', !selectedOption && 'text-gray-500')}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </span>
         <ChevronDown className="h-4 w-4 text-gray-400" />
       </button>
 
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
           <div className="p-2 border-b">
             <div className="relative">
@@ -95,7 +107,7 @@ export function SearchableSelect({
                   onClick={() => {
                     onChange(option.value);
                     setIsOpen(false);
-                    setSearch("");
+                    setSearch('');
                   }}
                   className="w-full px-3 py-2 text-left hover:bg-purple-50 transition-colors flex items-center gap-2"
                 >

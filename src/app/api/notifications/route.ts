@@ -15,7 +15,11 @@ export async function GET() {
       rental: {
         include: {
           property: { select: { name: true } },
-          tenant: { select: { name: true } },
+          tenants: {
+            include: {
+              client: { select: { name: true } },
+            },
+          },
         },
       },
     },
