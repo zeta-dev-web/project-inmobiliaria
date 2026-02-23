@@ -1,24 +1,27 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { SessionProvider } from "@/src/components/providers/SessionProvider";
-import { TanstackQueryProvider } from "@/src/components/providers/TanstackQueryProvider";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import { SessionProvider } from '@/src/components/providers/SessionProvider';
+import { TanstackQueryProvider } from '@/src/components/providers/TanstackQueryProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GoogleAnalytics from '@/src/components/GoogleAnalytics';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Polar Inmobiliaria - Raíces familiares, soluciones profesionales desde hace 30 años",
-  description: "Encuentra tu hogar ideal con Polar Inmobiliaria. Alquileres, ventas, administración y tasaciones. Más de 30 años de experiencia.",
+  title:
+    'Polar Inmobiliaria - Raíces familiares, soluciones profesionales desde hace 30 años',
+  description:
+    'Encuentra tu hogar ideal con Polar Inmobiliaria. Alquileres, ventas, administración y tasaciones. Más de 30 años de experiencia.',
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -38,6 +41,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <GoogleAnalytics />
         <SessionProvider>
           <TanstackQueryProvider>
             {children}
