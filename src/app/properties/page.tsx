@@ -5,7 +5,7 @@ import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
 import { PropertiesView } from './components/PropertiesView';
 import prisma from '@/lib/prisma';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 function useAsyncSearchParams() {
   const searchParams = useSearchParams();
@@ -73,7 +73,7 @@ async function getProperties(searchParams: {
   }
 }
 
-export default function PropiedadesPage() {
+function PropertiesContent() {
   const searchParams = useAsyncSearchParams();
   const [data, setData] = useState<any>(null);
 
@@ -86,6 +86,20 @@ export default function PropiedadesPage() {
   }
 
   const { properties, totalPages, currentPage } = data;
+
+  return (
+    <main>
+      <PropertiesView
+        properties={properties}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        isLoading={false}
+      />
+    </main>
+  );
+}
+
+export default function PropiedadesPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -106,14 +120,9 @@ export default function PropiedadesPage() {
         </div>
       </header>
 
-      <main>
-        <PropertiesView
-          properties={properties}
-          totalPages={totalPages}
-          currentPage={currentPage}
-          isLoading={false}
-        />
-      </main>
+      <Suspense fallback={<div>Cargando...</div>}>
+        <PropertiesContent />
+      </Suspense>
 
       <Footer />
       <WhatsAppFloat />
