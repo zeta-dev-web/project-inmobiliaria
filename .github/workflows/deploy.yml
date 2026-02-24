@@ -22,6 +22,7 @@ jobs:
             cd ~/project-inmobiliaria
             git reset --hard
             git pull origin dev
+            echo "NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}" > .env.local
             rm -f package-lock.json
             yarn install --ignore-engines
             yarn add dotenv --ignore-engines
