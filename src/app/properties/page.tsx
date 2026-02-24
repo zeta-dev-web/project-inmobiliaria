@@ -1,8 +1,16 @@
+'use client';
+
 import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
 import { PropertiesView } from './components/PropertiesView';
 import prisma from '@/lib/prisma';
-import { Metadata } from 'next';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+function useAsyncSearchParams() {
+  const searchParams = useSearchParams();
+  return Object.fromEntries(searchParams.entries());
+}
 
 async function getProperties(searchParams: {
   [key: string]: string | string[] | undefined;
@@ -65,33 +73,19 @@ async function getProperties(searchParams: {
   }
 }
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}): Promise<Metadata> {
-  const params = await searchParams;
-  const type = params.type as string;
-  let title = 'Propiedades Disponibles';
-  if (type === 'RENT') {
-    title = 'Propiedades en Alquiler';
-  } else if (type === 'SALE') {
-    title = 'Propiedades en Venta';
-  }
-  return {
-    title,
-    description: `Encuentra las mejores propiedades en ${type === 'RENT' ? 'alquiler' : type === 'SALE' ? 'venta' : ''} en Tafí Viejo, Tucumán.`,
-  };
-}
+export default function PropiedadesPage() {
+  const searchParams = useAsyncSearchParams();
+  const [data, setData] = useState<any>(null);
 
-export default async function PropiedadesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const params = await searchParams;
-  const { properties, totalPages, currentPage } =
-    await getProperties(params);
+  useEffect(() => {
+    getProperties(searchParams).then(setData);
+  }, [searchParams]);
+
+  if (!data) {
+    return <div>Cargando...</div>;
+  }
+
+  const { properties, totalPages, currentPage } = data;
 
   return (
     <div className="min-h-screen bg-gray-100">
