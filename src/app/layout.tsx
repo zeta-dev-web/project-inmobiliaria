@@ -25,7 +25,7 @@ const APP_DESCRIPTION =
   'Polar Inmobiliaria en Tafí Viejo, Tucumán. Más de 30 años de experiencia en alquileres, ventas, administración de propiedades, tasaciones y contratos. Encontrá tu hogar ideal.';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://polar-inmobiliaria.com.ar'),
+  metadataBase: new URL('https://polarinmobiliaria.com.ar'),
   title: {
     default: APP_DEFAULT_TITLE,
     template: APP_TITLE_TEMPLATE,
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
-    url: 'https://polar-inmobiliaria.com.ar',
+    url: 'https://polarinmobiliaria.com.ar',
     images: [
       {
         url: '/favicon-512x512.png',
@@ -118,7 +118,7 @@ export default function RootLayout({
               name: 'Polar Inmobiliaria',
               description:
                 'Inmobiliaria en Tafí Viejo, Tucumán con más de 30 años de experiencia',
-              url: 'https://polar-inmobiliaria.com.ar',
+              url: 'https://polarinmobiliaria.com.ar',
               address: {
                 '@type': 'PostalAddress',
                 addressLocality: 'Tafí Viejo',

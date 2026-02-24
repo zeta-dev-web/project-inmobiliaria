@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://polar-inmobiliaria.com.ar';
+  const baseUrl = 'https://polarinmobiliaria.com.ar';
 
   const properties = await prisma.property.findMany({
     where: {

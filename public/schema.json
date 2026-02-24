@@ -3,9 +3,9 @@
   "@type": "RealEstateAgent",
   "name": "Polar Inmobiliaria",
   "description": "Inmobiliaria en Tafí Viejo, Tucumán. Más de 30 años de experiencia en alquileres, ventas, administración y tasaciones de propiedades.",
-  "url": "https://polar-inmobiliaria.com.ar",
-  "logo": "https://polar-inmobiliaria.com.ar/favicon-512x512.png",
-  "image": "https://polar-inmobiliaria.com.ar/favicon-512x512.png",
+  "url": "https://polarinmobiliaria.com.ar",
+  "logo": "https://polarinmobiliaria.com.ar/favicon-512x512.png",
+  "image": "https://polarinmobiliaria.com.ar/favicon-512x512.png",
   "telephone": "+54-381-6625078",
   "address": {
     "@type": "PostalAddress",
