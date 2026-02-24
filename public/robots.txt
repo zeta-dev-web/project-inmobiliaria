@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://polar-inmobiliaria.com.ar/sitemap.xml

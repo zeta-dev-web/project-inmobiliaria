@@ -1,0 +1,46 @@
+{
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  "name": "Polar Inmobiliaria",
+  "description": "Inmobiliaria en Tafí Viejo, Tucumán. Más de 30 años de experiencia en alquileres, ventas, administración y tasaciones de propiedades.",
+  "url": "https://polar-inmobiliaria.com.ar",
+  "logo": "https://polar-inmobiliaria.com.ar/favicon-512x512.png",
+  "image": "https://polar-inmobiliaria.com.ar/favicon-512x512.png",
+  "telephone": "+54-381-6625078",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Monteagudo 563",
+    "addressLocality": "Tafí Viejo",
+    "addressRegion": "Tucumán",
+    "postalCode": "4103",
+    "addressCountry": "AR"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "-26.7329",
+    "longitude": "-65.2598"
+  },
+  "hasMap": "https://www.google.com/maps?q=-26.7329,-65.2598",
+  "areaServed": {
+    "@type": "City",
+    "name": "Tafí Viejo"
+  },
+  "priceRange": "$$",
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "opens": "09:00",
+      "closes": "12:30"
+    }
+  ],
+  "sameAs": [
+    "https://www.facebook.com/POLAR.Propiedades"
+  ]
+}

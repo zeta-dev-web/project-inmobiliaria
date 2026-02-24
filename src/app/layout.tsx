@@ -17,11 +17,75 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+const APP_NAME = 'Polar Inmobiliaria';
+const APP_DEFAULT_TITLE =
+  'Polar Inmobiliaria - Raíces familiares, soluciones profesionales desde hace 30 años';
+const APP_TITLE_TEMPLATE = '%s | Polar Inmobiliaria';
+const APP_DESCRIPTION =
+  'Polar Inmobiliaria en Tafí Viejo, Tucumán. Más de 30 años de experiencia en alquileres, ventas, administración de propiedades, tasaciones y contratos. Encontrá tu hogar ideal.';
+
 export const metadata: Metadata = {
-  title:
-    'Polar Inmobiliaria - Raíces familiares, soluciones profesionales desde hace 30 años',
-  description:
-    'Encuentra tu hogar ideal con Polar Inmobiliaria. Alquileres, ventas, administración y tasaciones. Más de 30 años de experiencia.',
+  metadataBase: new URL('https://polar-inmobiliaria.com.ar'),
+  title: {
+    default: APP_DEFAULT_TITLE,
+    template: APP_TITLE_TEMPLATE,
+  },
+  description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
+  keywords: [
+    'inmobiliaria',
+    'inmobiliaria Tafí Viejo',
+    'inmobiliaria Tucumán',
+    'propiedades',
+    'alquiler',
+    'venta',
+    'Tafí Viejo',
+    'Tucumán',
+    'Argentina',
+    'casas',
+    'departamentos',
+    'tasaciones',
+    'valuaciones',
+    'administración de alquileres',
+    'contratos de alquiler',
+    'Polar Inmobiliaria',
+  ],
+  manifest: '/site.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: APP_DEFAULT_TITLE,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  themeColor: '#FFFFFF',
+  openGraph: {
+    type: 'website',
+    siteName: APP_NAME,
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+    url: 'https://polar-inmobiliaria.com.ar',
+    images: [
+      {
+        url: '/favicon-512x512.png',
+        width: 512,
+        height: 512,
+        alt: 'Logo de Polar Inmobiliaria',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary',
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+  },
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -37,7 +101,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es-AR">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'RealEstateAgent',
+              name: 'Polar Inmobiliaria',
+              description:
+                'Inmobiliaria en Tafí Viejo, Tucumán con más de 30 años de experiencia',
+              url: 'https://polar-inmobiliaria.com.ar',
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: 'Tafí Viejo',
+                addressRegion: 'Tucumán',
+                addressCountry: 'AR',
+              },
+            }),
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
