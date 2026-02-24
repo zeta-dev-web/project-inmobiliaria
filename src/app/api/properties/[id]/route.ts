@@ -60,6 +60,7 @@ export async function PUT(
       status,
       requirements,
       documentation,
+      published,
     } = body;
 
     const property = await prisma.property.update({
@@ -74,6 +75,7 @@ export async function PUT(
         status,
         requirements,
         documentation,
+        published,
         lastEditedBy: {
           connect: { id: parseInt(session.user.id) },
         },

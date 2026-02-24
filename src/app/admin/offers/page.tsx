@@ -1,43 +1,53 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import clientAxios from "@/utils/clientAxios";
-import { Property } from "@/generated/prisma";
-import { ModernTable } from "@/components/ui/modern-table";
-import { Badge } from "@/components/ui/badge";
-import { Building2, Search, Filter, X, ArrowUpDown, Eye, Globe, Share2, MessageCircle } from "lucide-react";
-import { cn } from "@/lib/shadcn/utils";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import clientAxios from '@/utils/clientAxios';
+import { Property } from '@/generated/prisma';
+import { ModernTable } from '@/components/ui/modern-table';
+import { Badge } from '@/components/ui/badge';
+import {
+  Building2,
+  Search,
+  Filter,
+  X,
+  ArrowUpDown,
+  Eye,
+  Globe,
+  Share2,
+  MessageCircle,
+} from 'lucide-react';
+import { cn } from '@/lib/shadcn/utils';
 import { toast } from 'react-toastify';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 
 type PropertyForOffers = Property & {
   client?: { name: string };
 };
 
 export default function OffersPage() {
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("");
-  const [sortOrder, setSortOrder] = useState<string>("");
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<string>('');
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
   const shareProperty = (property: PropertyForOffers) => {
     const url = `${window.location.origin}/property/${property.id}`;
     const text = `Mira esta propiedad: ${property.name} - $${property.price.toLocaleString()}`;
-    
+
     if (navigator.share) {
       navigator.share({ title: property.name, text, url });
     } else {
       navigator.clipboard.writeText(url);
-      toast.success("Enlace copiado al portapapeles");
+      toast.success('Enlace copiado al portapapeles');
     }
   };
 
@@ -47,18 +57,24 @@ export default function OffersPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const { data: response, isLoading, error } = useQuery({
-    queryKey: ["available-properties", search, typeFilter, sortOrder, page],
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['available-properties', search, typeFilter, sortOrder, page],
     queryFn: async () => {
       const params = new URLSearchParams({
-        status: "AVAILABLE",
+        status: 'AVAILABLE',
         page: page.toString(),
-        limit: "10",
+        limit: '10',
         ...(search && { search }),
         ...(typeFilter && { type: typeFilter }),
-        ...(sortOrder && { sortBy: "price", order: sortOrder }),
+        ...(sortOrder && { sortBy: 'price', order: sortOrder }),
       });
-      const { data } = await clientAxios.get(`/properties?${params.toString()}`);
+      const { data } = await clientAxios.get(
+        `/properties?${params.toString()}`
+      );
       return data;
     },
   });
@@ -67,60 +83,71 @@ export default function OffersPage() {
   const totalPages = response?.totalPages || 1;
 
   const togglePublished = useMutation({
-    mutationFn: async ({ id, published }: { id: string; published: boolean }) => {
+    mutationFn: async ({
+      id,
+      published,
+    }: {
+      id: string;
+      published: boolean;
+    }) => {
       await clientAxios.put(`/properties/${id}`, { published });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["available-properties"] });
-      toast.success("Estado de publicación actualizado");
+      queryClient.invalidateQueries({ queryKey: ['available-properties'] });
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+      toast.success('Estado de publicación actualizado');
     },
     onError: () => {
-      toast.error("Error al actualizar la publicación");
+      toast.error('Error al actualizar la publicación');
     },
   });
 
   const clearFilters = () => {
-    setSearch("");
-    setTypeFilter("");
-    setSortOrder("");
+    setSearch('');
+    setTypeFilter('');
+    setSortOrder('');
   };
 
   const hasActiveFilters = search || typeFilter || sortOrder;
 
   const columns = [
     {
-      key: "name",
-      label: "Propiedad",
+      key: 'name',
+      label: 'Propiedad',
       render: (property: PropertyForOffers) => (
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
             <Building2 className="w-5 h-5 text-[#600096]" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-gray-900 truncate">{property.name}</p>
+            <p className="font-semibold text-gray-900 truncate">
+              {property.name}
+            </p>
             <p className="text-sm text-gray-500 truncate">{property.address}</p>
           </div>
         </div>
       ),
     },
     {
-      key: "type",
-      label: "Tipo",
+      key: 'type',
+      label: 'Tipo',
       render: (property: PropertyForOffers) => (
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className={cn(
-            "whitespace-nowrap",
-            property.type === "RENT" ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-green-50 text-green-700 border-green-200"
+            'whitespace-nowrap',
+            property.type === 'RENT'
+              ? 'bg-blue-50 text-blue-700 border-blue-200'
+              : 'bg-green-50 text-green-700 border-green-200'
           )}
         >
-          {property.type === "RENT" ? "🏠 Alquiler" : "💰 Venta"}
+          {property.type === 'RENT' ? '🏠 Alquiler' : '💰 Venta'}
         </Badge>
       ),
     },
     {
-      key: "price",
-      label: "Precio",
+      key: 'price',
+      label: 'Precio',
       render: (property: PropertyForOffers) => (
         <span className="font-semibold text-gray-900 whitespace-nowrap">
           ${property.price.toLocaleString()}
@@ -128,38 +155,38 @@ export default function OffersPage() {
       ),
     },
     {
-      key: "client",
-      label: "Propietario",
+      key: 'client',
+      label: 'Propietario',
       render: (property: PropertyForOffers) => (
         <span className="text-sm text-gray-600">
-          {property.client?.name || "N/A"}
+          {property.client?.name || 'N/A'}
         </span>
       ),
     },
     {
-      key: "published",
-      label: "Estado",
+      key: 'published',
+      label: 'Estado',
       render: (property: PropertyForOffers) => (
         <div className="flex items-center gap-2">
           {(property as any).published ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className="bg-green-50 text-green-700 border-green-200 cursor-pointer hover:bg-green-100"
                 >
                   🌐 Publicada
                 </Badge>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-white">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => shareProperty(property)}
                   className="cursor-pointer"
                 >
                   <Share2 className="mr-2 h-4 w-4" />
                   Compartir enlace
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => shareWhatsApp(property)}
                   className="cursor-pointer"
                 >
@@ -169,8 +196,8 @@ export default function OffersPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className="bg-gray-50 text-gray-700 border-gray-200"
             >
               🔒 Privada
@@ -186,7 +213,9 @@ export default function OffersPage() {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">💼 Ofertas Disponibles</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          💼 Ofertas Disponibles
+        </h1>
         <p className="text-gray-600 mt-1">
           Propiedades disponibles para alquiler y venta
         </p>
@@ -209,27 +238,41 @@ export default function OffersPage() {
           {/* Filtro por tipo */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className={cn(
-                  "h-11 min-w-[140px] justify-between bg-white hover:bg-gray-50 border-gray-300",
-                  typeFilter && "border-[#600096] bg-purple-50 hover:bg-purple-100"
+                  'h-11 min-w-[140px] justify-between bg-white hover:bg-gray-50 border-gray-300',
+                  typeFilter &&
+                    'border-[#600096] bg-purple-50 hover:bg-purple-100'
                 )}
               >
                 <span className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
-                  {typeFilter ? (typeFilter === "RENT" ? "Alquiler" : "Venta") : "Tipo"}
+                  {typeFilter
+                    ? typeFilter === 'RENT'
+                      ? 'Alquiler'
+                      : 'Venta'
+                    : 'Tipo'}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 bg-white">
-              <DropdownMenuItem onClick={() => setTypeFilter("")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setTypeFilter('')}
+                className="cursor-pointer"
+              >
                 Todos
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTypeFilter("RENT")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setTypeFilter('RENT')}
+                className="cursor-pointer"
+              >
                 🏠 Alquiler
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTypeFilter("SALE")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setTypeFilter('SALE')}
+                className="cursor-pointer"
+              >
                 💰 Venta
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -238,27 +281,41 @@ export default function OffersPage() {
           {/* Ordenar por precio */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className={cn(
-                  "h-11 min-w-[140px] justify-between bg-white hover:bg-gray-50 border-gray-300",
-                  sortOrder && "border-[#600096] bg-purple-50 hover:bg-purple-100"
+                  'h-11 min-w-[140px] justify-between bg-white hover:bg-gray-50 border-gray-300',
+                  sortOrder &&
+                    'border-[#600096] bg-purple-50 hover:bg-purple-100'
                 )}
               >
                 <span className="flex items-center gap-2">
                   <ArrowUpDown className="h-4 w-4" />
-                  {sortOrder ? (sortOrder === "asc" ? "Menor precio" : "Mayor precio") : "Ordenar"}
+                  {sortOrder
+                    ? sortOrder === 'asc'
+                      ? 'Menor precio'
+                      : 'Mayor precio'
+                    : 'Ordenar'}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 bg-white">
-              <DropdownMenuItem onClick={() => setSortOrder("")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setSortOrder('')}
+                className="cursor-pointer"
+              >
                 Sin orden
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortOrder("asc")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setSortOrder('asc')}
+                className="cursor-pointer"
+              >
                 Menor precio
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortOrder("desc")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => setSortOrder('desc')}
+                className="cursor-pointer"
+              >
                 Mayor precio
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -280,25 +337,43 @@ export default function OffersPage() {
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2">
             {search && (
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+              <Badge
+                variant="outline"
+                className="bg-purple-50 text-purple-700 border-purple-200"
+              >
                 Búsqueda: {search}
-                <button onClick={() => setSearch("")} className="ml-2 hover:text-purple-900">
+                <button
+                  onClick={() => setSearch('')}
+                  className="ml-2 hover:text-purple-900"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
             )}
             {typeFilter && (
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                Tipo: {typeFilter === "RENT" ? "Alquiler" : "Venta"}
-                <button onClick={() => setTypeFilter("")} className="ml-2 hover:text-purple-900">
+              <Badge
+                variant="outline"
+                className="bg-purple-50 text-purple-700 border-purple-200"
+              >
+                Tipo: {typeFilter === 'RENT' ? 'Alquiler' : 'Venta'}
+                <button
+                  onClick={() => setTypeFilter('')}
+                  className="ml-2 hover:text-purple-900"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
             )}
             {sortOrder && (
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                Orden: {sortOrder === "asc" ? "Menor precio" : "Mayor precio"}
-                <button onClick={() => setSortOrder("")} className="ml-2 hover:text-purple-900">
+              <Badge
+                variant="outline"
+                className="bg-purple-50 text-purple-700 border-purple-200"
+              >
+                Orden: {sortOrder === 'asc' ? 'Menor precio' : 'Mayor precio'}
+                <button
+                  onClick={() => setSortOrder('')}
+                  className="ml-2 hover:text-purple-900"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -311,7 +386,11 @@ export default function OffersPage() {
         data={data || []}
         columns={columns}
         isLoading={isLoading}
-        emptyMessage={hasActiveFilters ? "No se encontraron propiedades con los filtros aplicados" : "No hay propiedades disponibles"}
+        emptyMessage={
+          hasActiveFilters
+            ? 'No se encontraron propiedades con los filtros aplicados'
+            : 'No hay propiedades disponibles'
+        }
         actions={(property) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -320,19 +399,25 @@ export default function OffersPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuItem 
-                onClick={() => togglePublished.mutate({ 
-                  id: property.id, 
-                  published: !(property as any).published 
-                })}
+              <DropdownMenuItem
+                onClick={() =>
+                  togglePublished.mutate({
+                    id: property.id,
+                    published: !(property as any).published,
+                  })
+                }
                 className="cursor-pointer"
               >
                 <Globe className="mr-2 h-4 w-4" />
-                {(property as any).published ? "Quitar publicación" : "Publicar"}
+                {(property as any).published
+                  ? 'Quitar publicación'
+                  : 'Publicar'}
               </DropdownMenuItem>
               {(property as any).published && (
-                <DropdownMenuItem 
-                  onClick={() => window.open(`/property/${property.id}`, '_blank')}
+                <DropdownMenuItem
+                  onClick={() =>
+                    window.open(`/property/${property.id}`, '_blank')
+                  }
                   className="cursor-pointer"
                 >
                   <Eye className="mr-2 h-4 w-4" />
@@ -347,7 +432,7 @@ export default function OffersPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
           <Button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             variant="outline"
             className="h-10 px-4 bg-white hover:bg-gray-50 border-gray-300 disabled:opacity-50"
@@ -359,12 +444,12 @@ export default function OffersPage() {
               <Button
                 key={p}
                 onClick={() => setPage(p)}
-                variant={page === p ? "default" : "outline"}
+                variant={page === p ? 'default' : 'outline'}
                 className={cn(
-                  "h-10 w-10",
-                  page === p 
-                    ? "bg-[#600096] hover:bg-[#500080] text-white" 
-                    : "bg-white hover:bg-gray-50 border-gray-300 text-gray-700"
+                  'h-10 w-10',
+                  page === p
+                    ? 'bg-[#600096] hover:bg-[#500080] text-white'
+                    : 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700'
                 )}
               >
                 {p}
@@ -372,7 +457,7 @@ export default function OffersPage() {
             ))}
           </div>
           <Button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             variant="outline"
             className="h-10 px-4 bg-white hover:bg-gray-50 border-gray-300 disabled:opacity-50"

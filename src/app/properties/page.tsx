@@ -6,6 +6,8 @@ import { PropertiesView } from './components/PropertiesView';
 import prisma from '@/lib/prisma';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 function useAsyncSearchParams() {
   const searchParams = useSearchParams();
@@ -100,6 +102,8 @@ function PropertiesContent() {
 }
 
 export default function PropiedadesPage() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'ADMIN';
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -116,6 +120,21 @@ export default function PropiedadesPage() {
                 Polar Inmobiliaria
               </h1>
             </div>
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                className="px-4 py-2 bg-[#600096] hover:bg-[#500080] text-white rounded-lg transition-colors"
+              >
+                Panel Admin
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="px-4 py-2 bg-[#600096] hover:bg-[#500080] text-white rounded-lg transition-colors"
+              >
+                Iniciar Sesión
+              </Link>
+            )}
           </div>
         </div>
       </header>

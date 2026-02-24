@@ -1,3 +1,5 @@
+'use client';
+
 import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
 import prisma from '@/lib/prisma';
@@ -9,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Product, WithContext } from 'schema-dts';
+import { useEffect, useState } from 'react';
 
 type PropertyPageProps = {
   params: Promise<{
@@ -35,27 +38,16 @@ async function getProperty(id: string) {
   return property;
 }
 
-export async function generateMetadata(
-  { params }: PropertyPageProps,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const { id } = await params;
-  const property = await getProperty(id);
+export default function PropertyPage({ params }: PropertyPageProps) {
+  const [property, setProperty] = useState<any>(null);
 
-  const previousImages = (await parent).openGraph?.images || [];
+  useEffect(() => {
+    params.then(({ id }) => getProperty(id)).then(setProperty);
+  }, [params]);
 
-  return {
-    title: property.name,
-    description: property.description,
-    openGraph: {
-      images: [property.photos[0]?.url, ...previousImages],
-    },
-  };
-}
-
-export default async function PropertyPage({ params }: PropertyPageProps) {
-  const { id } = await params;
-  const property = await getProperty(id);
+  if (!property) {
+    return <div>Cargando...</div>;
+  }
 
   const breadcrumbItems = [
     { label: 'Propiedades', href: '/properties' },
@@ -67,7 +59,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     '@type': 'Product',
     name: property.name,
     description: property.description || undefined,
-    image: property.photos.map((photo) => photo.url),
+    image: property.photos.map((photo: { url: string }) => photo.url),
     offers: {
       '@type': 'Offer',
       price: property.price.toString(),
