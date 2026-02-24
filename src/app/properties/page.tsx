@@ -68,9 +68,10 @@ async function getProperties(searchParams: {
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const type = searchParams.type as string;
+  const params = await searchParams;
+  const type = params.type as string;
   let title = 'Propiedades Disponibles';
   if (type === 'RENT') {
     title = 'Propiedades en Alquiler';
@@ -86,10 +87,11 @@ export async function generateMetadata({
 export default async function PropiedadesPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const params = await searchParams;
   const { properties, totalPages, currentPage } =
-    await getProperties(searchParams);
+    await getProperties(params);
 
   return (
     <div className="min-h-screen bg-gray-100">
