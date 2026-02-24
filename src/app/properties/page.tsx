@@ -3,7 +3,6 @@
 import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
 import { PropertiesView } from './components/PropertiesView';
-import prisma from '@/lib/prisma';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
@@ -14,74 +13,21 @@ function useAsyncSearchParams() {
   return Object.fromEntries(searchParams.entries());
 }
 
-async function getProperties(searchParams: {
-  [key: string]: string | string[] | undefined;
-}) {
-  try {
-    const page = parseInt((searchParams.page as string) || '1');
-    const limit = parseInt((searchParams.limit as string) || '12');
-    const search = searchParams.search as string;
-    const type = searchParams.type as string;
-    const order = (searchParams.order as string) || 'asc';
-    const view = (searchParams.view as string) || 'grid';
-
-    const skip = (page - 1) * limit;
-
-    const where: any = {
-      published: true,
-      status: 'AVAILABLE',
-    };
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { address: { contains: search, mode: 'insensitive' as const } },
-      ];
-    }
-
-    if (type && type !== 'all') {
-      where.type = type;
-    }
-
-    const orderBy = { price: order as 'asc' | 'desc' };
-
-    const [properties, totalRecords] = await Promise.all([
-      prisma.property.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-        include: {
-          photos: true,
-        },
-      }),
-      prisma.property.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(totalRecords / limit);
-
-    return {
-      properties,
-      totalPages,
-      currentPage: page,
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      properties: [],
-      totalPages: 1,
-      currentPage: 1,
-    };
-  }
-}
-
 function PropertiesContent() {
   const searchParams = useAsyncSearchParams();
   const [data, setData] = useState<any>(null);
+  const [paramsString, setParamsString] = useState('');
 
   useEffect(() => {
-    getProperties(searchParams).then(setData);
+    const params = new URLSearchParams(searchParams as any);
+    setParamsString(params.toString());
   }, [searchParams]);
+
+  useEffect(() => {
+    fetch(`/api/properties/public?${paramsString}`)
+      .then(res => res.json())
+      .then(setData);
+  }, [paramsString]);
 
   if (!data) {
     return <div>Cargando...</div>;

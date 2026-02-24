@@ -2,16 +2,11 @@
 
 import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
-import prisma from '@/lib/prisma';
-import { Metadata, ResolvingMetadata } from 'next';
 import { PropertyView } from './components/PropertyView';
-import { notFound } from 'next/navigation';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
 import { Product, WithContext } from 'schema-dts';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type PropertyPageProps = {
   params: Promise<{
@@ -19,31 +14,28 @@ type PropertyPageProps = {
   }>;
 };
 
-async function getProperty(id: string) {
-  const property = await prisma.property.findUnique({
-    where: {
-      id,
-      published: true,
-      status: 'AVAILABLE',
-    },
-    include: {
-      photos: true,
-    },
-  });
-
-  if (!property) {
-    notFound();
-  }
-
-  return property;
-}
-
 export default function PropertyPage({ params }: PropertyPageProps) {
   const [property, setProperty] = useState<any>(null);
+  const [propertyId, setPropertyId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    params.then(({ id }) => getProperty(id)).then(setProperty);
+    params.then(({ id }) => setPropertyId(id));
   }, [params]);
+
+  useEffect(() => {
+    if (!propertyId) return;
+    
+    fetch(`/api/properties/${propertyId}/public`)
+      .then(res => {
+        if (!res.ok) {
+          router.push('/properties');
+          return null;
+        }
+        return res.json();
+      })
+      .then(data => data && setProperty(data));
+  }, [propertyId, router]);
 
   if (!property) {
     return <div>Cargando...</div>;
