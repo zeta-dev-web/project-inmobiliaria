@@ -1,13 +1,8 @@
-import { Metadata } from 'next';
+'use client';
+
 import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
 import { Home, DollarSign, FileText, TrendingUp, Shield } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Servicios',
-  description:
-    'Polar Inmobiliaria ofrece servicios de alquiler, venta, administración de propiedades, tasaciones y contratos en Tafí Viejo, Tucumán. Más de 30 años de experiencia.',
-};
 
 export default function ServiciosPage() {
   const services = [

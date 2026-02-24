@@ -11,9 +11,9 @@ import Link from 'next/link';
 import { Product, WithContext } from 'schema-dts';
 
 type PropertyPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 async function getProperty(id: string) {
@@ -39,7 +39,7 @@ export async function generateMetadata(
   { params }: PropertyPageProps,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const id = params.id;
+  const { id } = await params;
   const property = await getProperty(id);
 
   const previousImages = (await parent).openGraph?.images || [];
@@ -54,7 +54,8 @@ export async function generateMetadata(
 }
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
-  const property = await getProperty(params.id);
+  const { id } = await params;
+  const property = await getProperty(id);
 
   const breadcrumbItems = [
     { label: 'Propiedades', href: '/properties' },
