@@ -29,6 +29,7 @@ model User {
   properties        Property[]
   clientsEdited     Client[]   @relation("ClientEditedBy")
   signedPayments    Payment[]  @relation("PaymentSigner")
+  signedGeneralReceipts GeneralReceipt[] @relation("GeneralReceiptSigner")
 }
 
 enum UserRole {
@@ -298,4 +299,18 @@ model Notification {
 enum NotificationType {
   CONTRACT_EXPIRING
   PRICE_UPDATE
+}
+
+model GeneralReceipt {
+  id              String   @id @default(cuid())
+  receiptNumber   String   @unique // Número de recibo (ej: "2025/11/001")
+  clientIds       String[] // IDs de clientes que abonan
+  reason          String   // Razón del recibo
+  amount          Float    // Monto
+  receiptDate     DateTime // Fecha del recibo
+  signedBy        User     @relation("GeneralReceiptSigner", fields: [signedById], references: [id])
+  signedById      Int      // Usuario admin que firma el recibo
+  transactionHash String   @unique // Hash de seguridad
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

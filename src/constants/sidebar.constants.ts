@@ -51,6 +51,11 @@ export const SIDEBAR_ITEMS: NavItem[] = [
         href: '/admin/rentals/deliveries',
         icon: HandCoins,
       },
+      {
+        title: 'Recibos Generales',
+        href: '/admin/general-receipts',
+        icon: FileText,
+      },
     ],
   },
   { title: 'Reportes', icon: BarChart3, href: '/admin/reports' },

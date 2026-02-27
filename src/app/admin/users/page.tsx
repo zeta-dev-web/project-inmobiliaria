@@ -35,6 +35,8 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [newName, setNewName] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [updating, setUpdating] = useState(false);
@@ -54,6 +56,35 @@ export default function UsersPage() {
       toast.error('Error al cargar usuarios');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChangeName = async () => {
+    if (!editingUser) return;
+
+    if (!newName.trim()) {
+      toast.error('El nombre no puede estar vacío');
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/users/${editingUser.id}/name`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      toast.success('Nombre actualizado correctamente');
+      setEditingUser(null);
+      setNewName('');
+      fetchUsers();
+    } catch (error) {
+      toast.error('Error al actualizar nombre');
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -110,7 +141,6 @@ export default function UsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Email</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>DNI</TableHead>
               <TableHead>Rol</TableHead>
@@ -121,9 +151,8 @@ export default function UsersPage() {
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">
-                  {user.email || '-'}
+                  {user.name || '-'}
                 </TableCell>
-                <TableCell>{user.name || '-'}</TableCell>
                 <TableCell>{user.dni || '-'}</TableCell>
                 <TableCell>
                   <span className="px-2 py-1 text-xs rounded-full bg-[#600096]/10 text-[#600096]">
@@ -131,20 +160,77 @@ export default function UsersPage() {
                   </span>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedUser(user)}
-                  >
-                    <KeyRound className="h-4 w-4 mr-2" />
-                    Cambiar Contraseña
-                  </Button>
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingUser(user);
+                        setNewName(user.name || '');
+                      }}
+                    >
+                      Cambiar Nombre
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedUser(user)}
+                    >
+                      <KeyRound className="h-4 w-4 mr-2" />
+                      Cambiar Contraseña
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cambiar Nombre</DialogTitle>
+            <DialogDescription>
+              Usuario: {editingUser?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nuevo Nombre</Label>
+              <Input
+                id="name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Ingrese el nombre"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingUser(null)}
+              disabled={updating}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleChangeName}
+              disabled={updating}
+              className="bg-[#600096] hover:bg-[#4a0070]"
+            >
+              {updating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Actualizando...
+                </>
+              ) : (
+                'Actualizar'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
         <DialogContent>
