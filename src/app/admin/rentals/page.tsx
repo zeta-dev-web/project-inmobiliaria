@@ -538,7 +538,7 @@ export default function RentalsPage() {
         rental={selectedRental}
       />
 
-      {selectedRental && (
+      {selectedRental && selectedRental.pricePeriods && (
         <UpdatePriceModal
           open={updatePriceModalOpen}
           onOpenChange={setUpdatePriceModalOpen}

@@ -88,14 +88,14 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
     },
   });
 
-  const propertyOptions = properties.map((p: Property) => ({
+  const propertyOptions = (properties || []).map((p: Property) => ({
     value: p.id,
     label: p.name,
     subtitle: p.address,
     icon: <Home className="h-4 w-4 text-purple-500" />,
   }));
 
-  const clientOptions = clients.map((c: Client) => ({
+  const clientOptions = (clients || []).map((c: Client) => ({
     value: c.id,
     label: c.name,
     subtitle: c.email,
@@ -111,7 +111,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
     });
 
   useEffect(() => {
-    if (rental) {
+    if (rental && rental.tenants && rental.guarantors) {
       setValue('propertyId', rental.propertyId);
       setValue('rentalPrice', rental.rentalPrice);
       setValue('updateFrequency', rental.updateFrequency);
@@ -126,7 +126,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
       setValue('administrationType', rental.administrationType);
       setTenantIds(rental.tenants.map((t) => t.client.id));
       setGuarantorIds(rental.guarantors.map((g) => g.client.id));
-    } else {
+    } else if (!rental) {
       reset();
       setTenantIds([]);
       setGuarantorIds([]);
@@ -183,7 +183,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
 
   const onSubmit = (data: FormData) => {
     setBackendErrors({});
-    const landlordId = selectedProperty?.clientId || '';
+    const landlordId = rental ? rental.landlordId : (selectedProperty?.clientId || '');
     const formData = { ...data, tenantIds, guarantorIds, landlordId };
     if (rental) {
       updateMutation.mutate(formData);
@@ -209,7 +209,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
   };
 
   const selectedPropertyId = watch('propertyId');
-  const selectedProperty = properties.find(
+  const selectedProperty = (properties || []).find(
     (p: Property & { client?: Client }) => p.id === selectedPropertyId
   );
 
@@ -252,6 +252,9 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
           </DialogTitle>
         </DialogHeader>
 
+        {rental && (!rental.tenants || !rental.guarantors) ? (
+          <div className="py-8 text-center text-gray-500">Cargando...</div>
+        ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
@@ -272,7 +275,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                         <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
                         <Input
                           value={
-                            properties.find((p: any) => p.id === field.value)?.name || 'Propiedad no encontrada'
+                            rental.property?.name || 'Propiedad no encontrada'
                           }
                           disabled
                           className="pl-10 bg-gray-50 cursor-not-allowed"
@@ -389,7 +392,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                   emptyMessage="No hay más clientes disponibles"
                 />
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {tenantIds.map((id) => {
+                  {tenantIds && tenantIds?.length > 0 && tenantIds?.map((id) => {
                     const client = clients.find((c: Client) => c.id === id);
                     return client ? (
                       <div
@@ -431,7 +434,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                   emptyMessage="No hay más clientes disponibles"
                 />
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {guarantorIds.map((id) => {
+                  {guarantorIds && guarantorIds?.length > 0 && guarantorIds?.map((id) => {
                     const client = clients.find((c: Client) => c.id === id);
                     return client ? (
                       <div
@@ -680,6 +683,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
             </Button>
           </div>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

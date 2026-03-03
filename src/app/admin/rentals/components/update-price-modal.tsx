@@ -32,6 +32,8 @@ export function UpdatePriceModal({ open, onOpenChange, rentalId, periods, startD
   const [iclData, setIclData] = useState<any>(null);
   const queryClient = useQueryClient();
 
+  const safePeriods = periods || [];
+
   const calculateWithICL = async () => {
     if (!selectedPeriod) {
       toast.error("Selecciona un período primero");
