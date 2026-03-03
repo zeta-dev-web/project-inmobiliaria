@@ -396,6 +396,13 @@ export default function RentalsPage() {
             </Button>
             <Button
               size="sm"
+              onClick={() => handleEdit(rental)}
+              className="md:hidden bg-gray-600 hover:bg-gray-700 text-white h-7 px-2 text-xs"
+            >
+              Editar
+            </Button>
+            <Button
+              size="sm"
               onClick={() => handlePayment(rental)}
               className="bg-green-600 hover:bg-green-700 text-white h-7 px-2 text-xs"
             >
