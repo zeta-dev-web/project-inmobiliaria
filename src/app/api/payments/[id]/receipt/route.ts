@@ -310,7 +310,39 @@ export async function GET(
         <div class="total" style="text-align: left;">
           TOTAL RECIBIDO: $ ${payment.amount.toLocaleString()}
         </div>
-        <div style="text-align: left; font-size: 12px; margin-top: 5px; color: #666;">
+        
+        <div style="margin-top: 15px; padding: 10px; background-color: #f3f4f6; border-radius: 5px; font-size: 12px;">
+          <div style="font-weight: bold; margin-bottom: 5px; color: #600096;">Entrega al Propietario:</div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+            <span>Alquiler del mes:</span>
+            <span>$ ${(() => {
+              const baseAmount = payment.amount - payment.items.reduce((sum, item) => sum + item.amount, 0);
+              return baseAmount.toLocaleString();
+            })()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+            <span>Administración (${payment.rental.administrationType === 'PERCENTAGE' ? payment.rental.administrationAmount + '%' : '$' + payment.rental.administrationAmount.toLocaleString()}):</span>
+            <span>- $ ${(() => {
+              const baseAmount = payment.amount - payment.items.reduce((sum, item) => sum + item.amount, 0);
+              const adminAmount = payment.rental.administrationType === 'PERCENTAGE' 
+                ? (baseAmount * payment.rental.administrationAmount) / 100
+                : payment.rental.administrationAmount;
+              return adminAmount.toLocaleString();
+            })()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-top: 5px; border-top: 1px solid #d1d5db; font-weight: bold;">
+            <span>A entregar:</span>
+            <span style="color: #600096;">$ ${(() => {
+              const baseAmount = payment.amount - payment.items.reduce((sum, item) => sum + item.amount, 0);
+              const adminAmount = payment.rental.administrationType === 'PERCENTAGE' 
+                ? (baseAmount * payment.rental.administrationAmount) / 100
+                : payment.rental.administrationAmount;
+              return (baseAmount - adminAmount).toLocaleString();
+            })()}</span>
+          </div>
+        </div>
+        
+        <div style="text-align: left; font-size: 12px; margin-top: 10px; color: #666;">
           A cuenta y orden de: ${payment.rental.landlord.name}
         </div>
       </div>

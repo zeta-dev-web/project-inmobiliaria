@@ -151,6 +151,14 @@ export function PaymentModal({
       const itemsTotal = items.reduce((sum, i) => sum + i.amount, 0);
       const lateFeeAmount = applyLateFee ? calculatedLateFee : 0;
 
+      // Calcular administración
+      let administrationAmount = 0;
+      if (rental.administrationType === 'PERCENTAGE') {
+        administrationAmount = (currentPeriodPrice * rental.administrationAmount) / 100;
+      } else {
+        administrationAmount = rental.administrationAmount;
+      }
+
       setValue('amount', currentPeriodPrice + itemsTotal + lateFeeAmount);
     }
   }, [
