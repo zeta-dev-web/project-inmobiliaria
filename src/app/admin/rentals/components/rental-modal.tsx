@@ -55,6 +55,7 @@ type FormData = {
   endDate: Date;
   paymentDueDay: number;
   lateFee: number;
+  lateFeeType: 'PERCENTAGE' | 'FIXED';
   administrationAmount: number;
   administrationType: 'PERCENTAGE' | 'FIXED';
 };
@@ -105,6 +106,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
     useForm<FormData>({
       defaultValues: {
         administrationType: 'PERCENTAGE',
+        lateFeeType: 'PERCENTAGE',
       },
     });
 
@@ -119,6 +121,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
       setValue('endDate', endDate);
       setValue('paymentDueDay', rental.paymentDueDay);
       setValue('lateFee', rental.lateFee);
+      setValue('lateFeeType', (rental as any).lateFeeType || 'PERCENTAGE');
       setValue('administrationAmount', rental.administrationAmount);
       setValue('administrationType', rental.administrationType);
       setTenantIds(rental.tenants.map((t) => t.client.id));
@@ -295,7 +298,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                     })}
                     placeholder={
                       selectedProperty
-                        ? selectedProperty.price.toString()
+                        ? selectedProperty.price.toLocaleString('es-AR')
                         : '0.00'
                     }
                     className="pl-10"
@@ -303,7 +306,8 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                 </div>
                 {selectedProperty && (
                   <p className="text-xs text-gray-500">
-                    Precio publicado: ${selectedProperty.price.toLocaleString()}
+                    Precio publicado: $
+                    {selectedProperty.price.toLocaleString('es-AR')}
                   </p>
                 )}
                 {backendErrors.rentalPrice && (
@@ -554,16 +558,39 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Multa por Mora *</Label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register('lateFee', {
-                      setValueAs: (v) => (v === '' ? undefined : parseFloat(v)),
-                    })}
-                    placeholder="0.00"
-                    className="pl-10"
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...register('lateFee', {
+                        setValueAs: (v) =>
+                          v === '' ? undefined : parseFloat(v),
+                      })}
+                      placeholder={
+                        watch('lateFeeType') === 'PERCENTAGE' ? '10' : '0.00'
+                      }
+                      className="pl-10"
+                    />
+                  </div>
+                  <Controller
+                    name="lateFeeType"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PERCENTAGE">%</SelectItem>
+                          <SelectItem value="FIXED">$</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
                 </div>
                 {backendErrors.lateFee && (

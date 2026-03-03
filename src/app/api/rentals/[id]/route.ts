@@ -73,6 +73,7 @@ export async function PUT(
       endDate,
       paymentDueDay,
       lateFee,
+      lateFeeType,
       administrationAmount,
       administrationType,
     } = body;
@@ -153,6 +154,7 @@ export async function PUT(
         endDate: new Date(endDate),
         paymentDueDay,
         lateFee,
+        lateFeeType: lateFeeType || 'PERCENTAGE',
         administrationAmount,
         administrationType,
         tenants: {
