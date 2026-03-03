@@ -53,55 +53,51 @@ export function ModernTable<T extends { id: string | number }>({
 
   return (
     <>
-      {/* Desktop Table */}
-      <div className="hidden md:block space-y-4">
-        {data.map((item) => (
-          <div
-            key={item.id}
-            className={cn(
-              'bg-white rounded-xl shadow-sm overflow-hidden',
-              getRowClassName?.(item) || 'border border-gray-200'
-            )}
-          >
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  {columns.map((column) => (
-                    <th
-                      key={column.key}
-                      className={cn(
-                        'px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider',
-                        column.className
-                      )}
-                    >
-                      {column.label}
-                    </th>
-                  ))}
-                  {actions && (
-                    <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-[80px]">
-                      Acciones
-                    </th>
-                  )}
-                  {extras && (
-                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Extras
-                    </th>
-                  )}
-                </tr>
-              </thead>
-              <tbody className="bg-white">
+      {/* Desktop & Mobile Table */}
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full bg-white sm:rounded-xl shadow-sm border border-gray-200">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                {columns.map((column) => (
+                  <th
+                    key={column.key}
+                    className={cn(
+                      'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap',
+                      column.className
+                    )}
+                  >
+                    {column.label}
+                  </th>
+                ))}
+                {actions && (
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-[80px] whitespace-nowrap">
+                    Acciones
+                  </th>
+                )}
+                {extras && (
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap hidden md:table-cell">
+                    Extras
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {data.map((item) => (
                 <tr
+                  key={item.id}
                   onClick={() => onRowClick?.(item)}
                   className={cn(
                     'hover:bg-gray-50 transition-colors',
-                    onRowClick && 'cursor-pointer'
+                    onRowClick && 'cursor-pointer',
+                    getRowClassName?.(item)
                   )}
                 >
                   {columns.map((column) => (
                     <td
                       key={column.key}
                       className={cn(
-                        'px-6 py-4 text-sm text-gray-900',
+                        'px-4 py-3 text-sm text-gray-900 whitespace-nowrap',
                         column.className
                       )}
                     >
@@ -111,86 +107,20 @@ export function ModernTable<T extends { id: string | number }>({
                     </td>
                   ))}
                   {actions && (
-                    <td className="px-4 py-4 text-center text-sm w-[80px]">
+                    <td className="px-4 py-3 text-center text-sm w-[80px] whitespace-nowrap">
                       {actions(item)}
                     </td>
                   )}
                   {extras && (
-                    <td className="px-6 py-4 text-center text-sm">
+                    <td className="px-4 py-3 text-center text-sm whitespace-nowrap hidden md:table-cell">
                       {extras(item)}
                     </td>
                   )}
                 </tr>
-              </tbody>
-            </table>
-          </div>
-        ))}
-      </div>
-
-      {/* Mobile Cards */}
-      <div className="md:hidden space-y-4">
-        {data.map((item) => (
-          <div
-            key={item.id}
-            className={cn(
-              'bg-white rounded-xl shadow-sm overflow-hidden transition-all',
-              getRowClassName?.(item) || 'border border-gray-200'
-            )}
-          >
-            <div className="p-4 space-y-3">
-              {/* Header con extras siempre visible */}
-              <div className="pb-3 border-b border-gray-100 flex items-start justify-between gap-3">
-                <div
-                  onClick={() => onRowClick?.(item)}
-                  className={cn(
-                    'flex-1 min-w-0',
-                    onRowClick && 'cursor-pointer'
-                  )}
-                >
-                  {columns.find((col) => !col.hideOnMobile)?.render
-                    ? columns.find((col) => !col.hideOnMobile)!.render!(item)
-                    : (item[
-                        columns.find((col) => !col.hideOnMobile)?.key as keyof T
-                      ] as ReactNode)}
-                </div>
-                {extras && (
-                  <div className="flex-shrink-0 ml-2">{extras(item)}</div>
-                )}
-              </div>
-
-              {/* Resto de columnas visibles en mobile */}
-              {columns
-                .filter((col) => !col.hideOnMobile)
-                .slice(1)
-                .map((column) => (
-                  <div
-                    key={column.key}
-                    onClick={() => onRowClick?.(item)}
-                    className={cn(
-                      'flex items-center justify-between gap-3',
-                      onRowClick && 'cursor-pointer'
-                    )}
-                  >
-                    <span className="text-xs font-medium text-gray-500 uppercase">
-                      {column.label}
-                    </span>
-                    <div className="text-sm">
-                      {column.render
-                        ? column.render(item)
-                        : (item[column.key as keyof T] as ReactNode)}
-                    </div>
-                  </div>
-                ))}
-
-              {/* Actions en fila separada */}
-              {actions && (
-                <div className="pt-2 border-t border-gray-100">
-                  {actions(item)}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

@@ -142,7 +142,7 @@ export default function ClientsPage() {
     {
       key: 'phone',
       label: 'Teléfono',
-      className: 'w-[140px]',
+      className: 'w-[140px] hidden md:table-cell',
       render: (client: Client) => (
         <span className="text-gray-900 text-sm">{client.phone}</span>
       ),
@@ -150,7 +150,7 @@ export default function ClientsPage() {
     {
       key: 'lastEditedBy',
       label: 'Editado',
-      className: 'w-[130px]',
+      className: 'w-[130px] hidden md:table-cell',
       render: (client: any) => (
         <span className="text-gray-600 text-sm">
           {client.lastEditedBy?.name || '-'}

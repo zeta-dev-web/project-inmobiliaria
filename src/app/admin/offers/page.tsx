@@ -148,6 +148,7 @@ export default function OffersPage() {
     {
       key: 'price',
       label: 'Precio',
+      className: 'hidden md:table-cell',
       render: (property: PropertyForOffers) => (
         <span className="font-semibold text-gray-900 whitespace-nowrap">
           ${property.price.toLocaleString()}
@@ -157,6 +158,7 @@ export default function OffersPage() {
     {
       key: 'client',
       label: 'Propietario',
+      className: 'hidden md:table-cell',
       render: (property: PropertyForOffers) => (
         <span className="text-sm text-gray-600">
           {property.client?.name || 'N/A'}

@@ -150,6 +150,7 @@ export default function PropertiesPage() {
       key: 'price',
       label: 'Precio',
       width: '15%',
+      className: 'hidden md:table-cell',
       render: (property: Property) => (
         <span className="font-semibold text-gray-900 whitespace-nowrap">
           ${property.price.toLocaleString()}
@@ -160,6 +161,7 @@ export default function PropertiesPage() {
       key: 'status',
       label: 'Estado',
       width: '18%',
+      className: 'hidden md:table-cell',
       render: (property: Property) => {
         const statusConfig = {
           AVAILABLE: {
@@ -196,6 +198,7 @@ export default function PropertiesPage() {
       key: 'lastEditedBy',
       label: 'Editado',
       width: '17%',
+      className: 'hidden md:table-cell',
       render: (property: any) => (
         <span className="text-sm text-gray-600">
           {property.lastEditedBy?.name || 'N/A'}

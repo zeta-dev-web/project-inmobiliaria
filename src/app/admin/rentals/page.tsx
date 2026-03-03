@@ -200,7 +200,7 @@ export default function RentalsPage() {
       key: 'tenant',
       label: 'Inquilino',
       width: '15%',
-      hideOnMobile: true,
+      className: 'hidden md:table-cell',
       render: (rental: RentalWithRelations) => (
         <span className="text-gray-900">
           {rental.tenants && rental.tenants.length > 0
@@ -213,7 +213,7 @@ export default function RentalsPage() {
       key: 'rentalPrice',
       label: 'Precio Actual',
       width: '10%',
-      hideOnMobile: true,
+      className: 'hidden md:table-cell',
       render: (rental: RentalWithRelations) => {
         const currentPrice = getCurrentPrice(rental);
         return (
@@ -261,7 +261,7 @@ export default function RentalsPage() {
       key: 'dates',
       label: 'Vigencia',
       width: '17%',
-      hideOnMobile: true,
+      className: 'hidden md:table-cell',
       render: (rental: RentalWithRelations) => (
         <span className="text-sm text-gray-600">
           {new Date(rental.startDate).toLocaleDateString()} -{' '}
@@ -387,6 +387,13 @@ export default function RentalsPage() {
         }}
         actions={(rental) => (
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={() => handleView(rental)}
+              className="md:hidden bg-purple-600 hover:bg-purple-700 text-white h-7 px-2 text-xs"
+            >
+              Ver
+            </Button>
             <Button
               size="sm"
               onClick={() => handlePayment(rental)}
