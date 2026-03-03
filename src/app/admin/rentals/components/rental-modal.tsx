@@ -267,16 +267,34 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                   name="propertyId"
                   control={control}
                   render={({ field }) => (
-                    <SearchableSelect
-                      options={propertyOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Seleccionar propiedad..."
-                      searchPlaceholder="Buscar propiedad..."
-                      emptyMessage="No hay propiedades disponibles"
-                    />
+                    rental ? (
+                      <div className="relative">
+                        <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                        <Input
+                          value={
+                            properties.find((p: any) => p.id === field.value)?.name || 'Propiedad no encontrada'
+                          }
+                          disabled
+                          className="pl-10 bg-gray-50 cursor-not-allowed"
+                        />
+                      </div>
+                    ) : (
+                      <SearchableSelect
+                        options={propertyOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Seleccionar propiedad..."
+                        searchPlaceholder="Buscar propiedad..."
+                        emptyMessage="No hay propiedades disponibles"
+                      />
+                    )
                   )}
                 />
+                {rental && (
+                  <p className="text-xs text-blue-600">
+                    No se puede cambiar la propiedad al editar un alquiler
+                  </p>
+                )}
                 {backendErrors.propertyId && (
                   <p className="text-sm text-red-500">
                     {backendErrors.propertyId}

@@ -108,8 +108,9 @@ export default function RentalsPage() {
     },
   });
 
-  const handleEdit = (rental: RentalWithRelations) => {
-    setSelectedRental(rental);
+  const handleEdit = async (rental: RentalWithRelations) => {
+    const { data } = await clientAxios.get(`/rentals/${rental.id}`);
+    setSelectedRental(data);
     setModalOpen(true);
   };
 
