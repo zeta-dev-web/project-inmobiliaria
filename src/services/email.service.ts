@@ -48,7 +48,7 @@ export async function notifySubscribersOfNewProperty(
     // Obtener todos los suscriptores activos
     const subscribers = await prisma.emailSubscriber.findMany({
       where: { active: true },
-      select: { email: true, name: true },
+      select: { email: true, name: true, id: true },
     });
 
     if (subscribers.length === 0) {
@@ -62,8 +62,20 @@ export async function notifySubscribersOfNewProperty(
     const batchSize = 10;
     for (let i = 0; i < subscribers.length; i += batchSize) {
       const batch = subscribers.slice(i, i + batchSize);
+      
+      // Verificar el estado actual de cada suscriptor antes de enviar
       const results = await Promise.all(
         batch.map(async (subscriber) => {
+          // Verificación en tiempo real para evitar enviar a quien se desuscribió
+          const currentStatus = await prisma.emailSubscriber.findUnique({
+            where: { id: subscriber.id },
+            select: { active: true },
+          });
+          
+          if (!currentStatus?.active) {
+            return false; // No enviar si se desuscribió
+          }
+          
           const sent = await sendNewPropertyEmail(
             subscriber.email,
             subscriber.name,

@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Mail, Home } from 'lucide-react';
+import { CheckCircle2, XCircle, Home } from 'lucide-react';
 import Link from 'next/link';
 import clientAxios from '@/utils/clientAxios';
 import { toast } from 'react-toastify';
@@ -13,12 +13,10 @@ function UnsubscribeContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState<boolean | null>(null);
-  const [email, setEmail] = useState('');
 
   useEffect(() => {
     const emailParam = searchParams.get('email');
     if (emailParam) {
-      setEmail(emailParam);
       handleUnsubscribe(emailParam);
     } else {
       setLoading(false);
@@ -84,12 +82,6 @@ function UnsubscribeContent() {
           )}
         </CardHeader>
         <CardContent className="space-y-4">
-          {email && (
-            <div className="bg-gray-50 rounded-lg p-3 text-center">
-              <Mail className="w-4 h-4 inline-block mr-2 text-gray-500" />
-              <span className="text-gray-700">{email}</span>
-            </div>
-          )}
           <div className="flex flex-col gap-2">
             <Button
               asChild
