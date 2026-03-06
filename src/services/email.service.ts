@@ -25,7 +25,7 @@ export async function sendNewPropertyEmail(
       from: 'Polar Inmobiliaria <administrador@polarinmobiliaria.com.ar>',
       to,
       subject: `🏠 Nueva Propiedad: ${property.propertyName}`,
-      html: createNewPropertyEmailHTML(name, property),
+      html: createNewPropertyEmailHTML(name, property, to),
     });
 
     if (error) {
@@ -104,7 +104,8 @@ export async function notifySubscribersOfNewProperty(
  */
 function createNewPropertyEmailHTML(
   name: string | null,
-  property: NewPropertyEmailData
+  property: NewPropertyEmailData,
+  subscriberEmail: string
 ) {
   return `
 <!DOCTYPE html>
@@ -194,7 +195,7 @@ function createNewPropertyEmailHTML(
               </p>
               <p style="margin: 0 0 20px 0; color: #999999; font-size: 12px;">
                 Si ya no deseas recibir estos emails, puedes
-                <a href="https://polarinmobiliaria.com.ar/unsubscribe?email=${encodeURIComponent(property.propertyUrl)}"
+                <a href="https://polarinmobiliaria.com.ar/unsubscribe?email=${encodeURIComponent(subscriberEmail)}"
                    style="color: #600096; text-decoration: underline;">
                    darte de baja aquí
                 </a>.
