@@ -181,8 +181,8 @@ function createNewPropertyEmailHTML(
                 Este email fue enviado porque te registraste para recibir novedades de Polar Inmobiliaria.
               </p>
               <p style="margin: 0 0 20px 0; color: #999999; font-size: 12px;">
-                Si ya no deseas recibir estos emails, puedes 
-                <a href="${process.env.NEXTAUTH_URL}/unsubscribe?email=${encodeURIComponent(property.propertyUrl)}" 
+                Si ya no deseas recibir estos emails, puedes
+                <a href="https://polarinmobiliaria.com.ar/unsubscribe?email=${encodeURIComponent(property.propertyUrl)}"
                    style="color: #600096; text-decoration: underline;">
                    darte de baja aquí
                 </a>.

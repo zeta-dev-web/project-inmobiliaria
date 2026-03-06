@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       propertyAddress: property.address,
       propertyPrice: property.price,
       propertyDescription: property.description,
-      propertyUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`,
+      propertyUrl: `https://polarinmobiliaria.com.ar/property/${property.id}`,
       photoUrl: undefined,
     });
 
