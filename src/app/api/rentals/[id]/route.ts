@@ -66,7 +66,7 @@ export async function PUT(
       propertyId,
       tenantIds,
       landlordId,
-      guarantorIds,
+      guarantorIds = [],
       rentalPrice,
       updateFrequency,
       startDate,
@@ -84,8 +84,7 @@ export async function PUT(
     if (!tenantIds || tenantIds.length === 0)
       errors.tenantIds = 'Al menos un inquilino es requerido';
     if (!landlordId) errors.landlordId = 'El propietario es requerido';
-    if (!guarantorIds || guarantorIds.length === 0)
-      errors.guarantorIds = 'Al menos un garante es requerido';
+    // Guarantors are optional - removed validation
     if (!rentalPrice || rentalPrice <= 0)
       errors.rentalPrice = 'El precio debe ser mayor a 0';
     if (!updateFrequency || updateFrequency <= 0)
@@ -93,7 +92,7 @@ export async function PUT(
     if (!startDate) errors.startDate = 'La fecha de inicio es requerida';
     if (!endDate) errors.endDate = 'La fecha de vencimiento es requerida';
     if (!paymentDueDay || paymentDueDay < 1 || paymentDueDay > 31)
-      errors.paymentDueDay = 'El d\u00eda debe estar entre 1 y 31';
+      errors.paymentDueDay = 'El día debe estar entre 1 y 31';
     if (lateFee === undefined || lateFee < 0)
       errors.lateFee = 'La multa no puede ser negativa';
     if (!administrationAmount || administrationAmount <= 0)
@@ -103,11 +102,25 @@ export async function PUT(
       return NextResponse.json({ errors }, { status: 400 });
     }
 
+    // Parse dates with timezone handling - use UTC to avoid timezone issues
     const start = new Date(startDate);
     const end = new Date(endDate);
+    
+    // Handle timezone offset for dates
+    const startDateUTC = new Date(
+      start.getUTCFullYear(),
+      start.getUTCMonth(),
+      start.getUTCDate()
+    );
+    const endDateUTC = new Date(
+      end.getUTCFullYear(),
+      end.getUTCMonth(),
+      end.getUTCDate()
+    );
+    
     const totalMonths =
-      (end.getFullYear() - start.getFullYear()) * 12 +
-      (end.getMonth() - start.getMonth()) +
+      (endDateUTC.getFullYear() - startDateUTC.getFullYear()) * 12 +
+      (endDateUTC.getMonth() - startDateUTC.getMonth()) +
       1;
 
     // Generar períodos de precio
@@ -150,20 +163,20 @@ export async function PUT(
         landlordId,
         rentalPrice,
         updateFrequency,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: startDateUTC,
+        endDate: endDateUTC,
         paymentDueDay,
         lateFee,
         lateFeeType: lateFeeType || 'PERCENTAGE',
         administrationAmount,
-        administrationType,
+        administrationType: administrationType || 'PERCENTAGE',
         tenants: {
           create: tenantIds.map((clientId: string) => ({
             clientId,
           })),
         },
         guarantors: {
-          create: guarantorIds.map((clientId: string) => ({
+          create: (guarantorIds || []).map((clientId: string) => ({
             clientId,
           })),
         },

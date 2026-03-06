@@ -111,72 +111,118 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
     });
 
   useEffect(() => {
-    if (rental && rental.tenants && rental.guarantors) {
+    if (rental && rental.tenants) {
       setValue('propertyId', rental.propertyId);
       setValue('rentalPrice', rental.rentalPrice);
       setValue('updateFrequency', rental.updateFrequency);
+      
+      // Handle dates with timezone - extract date parts and create local date
       const startDate = new Date(rental.startDate);
       const endDate = new Date(rental.endDate);
-      setValue('startDate', startDate);
-      setValue('endDate', endDate);
+      
+      // Create date strings in YYYY-MM-DD format for the input fields
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+      
+      setValue('startDate', new Date(startDateStr));
+      setValue('endDate', new Date(endDateStr));
       setValue('paymentDueDay', rental.paymentDueDay);
       setValue('lateFee', rental.lateFee);
       setValue('lateFeeType', (rental as any).lateFeeType || 'PERCENTAGE');
       setValue('administrationAmount', rental.administrationAmount);
-      setValue('administrationType', rental.administrationType);
+      setValue('administrationType', rental.administrationType || 'PERCENTAGE');
       setTenantIds(rental.tenants.map((t) => t.client.id));
-      setGuarantorIds(rental.guarantors.map((g) => g.client.id));
+      setGuarantorIds(rental.guarantors ? rental.guarantors.map((g) => g.client.id) : []);
     } else if (!rental) {
-      reset();
+      reset({
+        administrationType: 'PERCENTAGE',
+        lateFeeType: 'PERCENTAGE',
+      });
       setTenantIds([]);
       setGuarantorIds([]);
     }
   }, [rental, reset, setValue]);
 
   const createMutation = useMutation({
-    mutationFn: (
+    mutationFn: async (
       data: FormData & {
         tenantIds: string[];
         guarantorIds: string[];
         landlordId: string;
       }
-    ) => clientAxios.post('/rentals', data),
+    ) => {
+      // Ensure proper data types for API
+      const { landlordId, ...restData } = data;
+      const payload = {
+        ...restData,
+        tenantIds,
+        guarantorIds,
+        landlordId,
+        lateFeeType: data.lateFeeType || 'PERCENTAGE',
+        administrationType: data.administrationType || 'PERCENTAGE',
+        paymentDueDay: Number(data.paymentDueDay),
+        updateFrequency: Number(data.updateFrequency),
+        rentalPrice: Number(data.rentalPrice),
+        lateFee: Number(data.lateFee),
+        administrationAmount: Number(data.administrationAmount),
+      };
+      return clientAxios.post('/rentals', payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rentals'] });
       toast.success('Alquiler creado exitosamente');
       handleClose();
     },
     onError: (error: any) => {
+      console.error('Error creating rental:', error);
       if (error.response?.data?.errors) {
         setBackendErrors(error.response.data.errors);
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
       } else {
-        toast.error(
-          error.response?.data?.message || 'Error al crear el alquiler'
-        );
+        toast.error('Error al crear el alquiler. Por favor, intente nuevamente.');
       }
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: (
+    mutationFn: async (
       data: FormData & {
         tenantIds: string[];
         guarantorIds: string[];
         landlordId: string;
       }
-    ) => clientAxios.put(`/rentals/${rental?.id}`, data),
+    ) => {
+      // Ensure proper data types for API
+      const { landlordId, ...restData } = data;
+      const payload = {
+        ...restData,
+        tenantIds,
+        guarantorIds,
+        landlordId,
+        lateFeeType: data.lateFeeType || 'PERCENTAGE',
+        administrationType: data.administrationType || 'PERCENTAGE',
+        paymentDueDay: Number(data.paymentDueDay),
+        updateFrequency: Number(data.updateFrequency),
+        rentalPrice: Number(data.rentalPrice),
+        lateFee: Number(data.lateFee),
+        administrationAmount: Number(data.administrationAmount),
+      };
+      return clientAxios.put(`/rentals/${rental?.id}`, payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rentals'] });
       toast.success('Alquiler actualizado exitosamente');
       handleClose();
     },
     onError: (error: any) => {
+      console.error('Error updating rental:', error);
       if (error.response?.data?.errors) {
         setBackendErrors(error.response.data.errors);
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
       } else {
-        toast.error(
-          error.response?.data?.message || 'Error al actualizar el alquiler'
-        );
+        toast.error('Error al actualizar el alquiler. Por favor, intente nuevamente.');
       }
     },
   });
@@ -252,7 +298,7 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
           </DialogTitle>
         </DialogHeader>
 
-        {rental && (!rental.tenants || !rental.guarantors) ? (
+        {rental && !rental.tenants ? (
           <div className="py-8 text-center text-gray-500">Cargando...</div>
         ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -475,17 +521,12 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                   type="date"
                   value={
                     watch('startDate')
-                      ? new Date(
-                          new Date(watch('startDate')).getTime() -
-                            new Date(watch('startDate')).getTimezoneOffset() *
-                              60000
-                        )
-                          .toISOString()
-                          .split('T')[0]
+                      ? new Date(watch('startDate')).toISOString().split('T')[0]
                       : ''
                   }
                   onChange={(e) => {
-                    const localDate = new Date(e.target.value + 'T12:00:00');
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    const localDate = new Date(year, month - 1, day);
                     setValue('startDate', localDate);
                   }}
                 />
@@ -504,17 +545,12 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                   type="date"
                   value={
                     watch('endDate')
-                      ? new Date(
-                          new Date(watch('endDate')).getTime() -
-                            new Date(watch('endDate')).getTimezoneOffset() *
-                              60000
-                        )
-                          .toISOString()
-                          .split('T')[0]
+                      ? new Date(watch('endDate')).toISOString().split('T')[0]
                       : ''
                   }
                   onChange={(e) => {
-                    const localDate = new Date(e.target.value + 'T12:00:00');
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    const localDate = new Date(year, month - 1, day);
                     setValue('endDate', localDate);
                   }}
                 />

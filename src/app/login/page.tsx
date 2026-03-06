@@ -14,12 +14,13 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { Building2, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
+import { Building2, Lock, User, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const [dni, setDni] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -111,16 +112,28 @@ export default function LoginPage() {
                   Contraseña
                 </Label>
                 <div className="relative group">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 transition-colors group-focus-within:text-[#600096]" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 transition-colors group-focus-within:text-[#600096] z-10" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-11 h-12 border-2 border-gray-200 focus:border-[#600096] focus:ring-2 focus:ring-[#600096]/20 transition-all duration-200 rounded-xl"
+                    className="pl-11 pr-11 h-12 border-2 border-gray-200 focus:border-[#600096] focus:ring-2 focus:ring-[#600096]/20 transition-all duration-200 rounded-xl"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#600096] transition-colors duration-200 p-1 rounded-lg hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-[#600096]/20"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
               </div>
 
