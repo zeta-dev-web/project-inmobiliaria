@@ -2,7 +2,6 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { notifySubscribersOfNewProperty } from '@/services/email.service';
 
 export async function GET(
   req: Request,
@@ -101,17 +100,7 @@ export async function PUT(
     const isNowPublic = published === true;
     const isRent = type === 'RENT';
 
-    if (wasPrivate && isNowPublic && isRent) {
-      // Enviar emails en segundo plano
-      notifySubscribersOfNewProperty({
-        propertyName: property.name,
-        propertyAddress: property.address,
-        propertyPrice: property.price,
-        propertyDescription: property.description,
-        propertyUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`,
-        photoUrl: undefined,
-      });
-    }
+    // La notificación por email se hace manualmente desde la página de Ofertas
 
     return NextResponse.json(property);
   } catch (error) {
