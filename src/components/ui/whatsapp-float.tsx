@@ -36,10 +36,13 @@ ${propertyUrl}`;
   return (
     <button
       onClick={handleWhatsAppClick}
-      className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-colors z-50"
+      className="fixed bottom-5 right-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-4 rounded-full shadow-2xl transition-all z-40 transform hover:scale-110 active:scale-95 group animate-bounce-slow"
       aria-label="Contactar por WhatsApp"
     >
-      <MessageCircle className="w-6 h-6" />
+      <MessageCircle className="w-7 h-7" />
+      <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white text-gray-800 px-4 py-2 rounded-lg shadow-xl text-sm font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-purple-200">
+        ¡Consultar por WhatsApp!
+      </span>
     </button>
   );
 }

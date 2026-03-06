@@ -315,3 +315,17 @@ model GeneralReceipt {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+// Suscriptores para recibir notificaciones de nuevas propiedades
+model EmailSubscriber {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?  // Nombre opcional del suscriptor
+  active         Boolean  @default(true) // Si está activo o se dio de baja
+  unsubscribedAt DateTime? // Fecha de baja
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([email])
+  @@index([active])
+}

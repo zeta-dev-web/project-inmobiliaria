@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Receipt,
   HandCoins,
+  Mail,
 } from 'lucide-react';
 
 export type NavChild = {
@@ -59,6 +60,11 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     ],
   },
   { title: 'Reportes', icon: BarChart3, href: '/admin/reports' },
+  {
+    title: 'Suscriptores',
+    icon: Mail,
+    href: '/admin/subscribers',
+  },
   {
     title: 'Configuración',
     icon: Settings,

@@ -2,6 +2,8 @@
 
 import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
+import { SubscribeFloat } from '@/components/ui/subscribe-float';
+import { SubscribeModal } from '@/components/ui/subscribe-modal';
 import { PropertiesView } from './components/PropertiesView';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
@@ -17,6 +19,7 @@ function PropertiesContent() {
   const searchParams = useAsyncSearchParams();
   const [data, setData] = useState<any>(null);
   const [paramsString, setParamsString] = useState('');
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams as any);
@@ -29,6 +32,26 @@ function PropertiesContent() {
       .then(setData);
   }, [paramsString]);
 
+  // Mostrar el modal la primera vez que el usuario entra (si no se ha suscrito antes)
+  useEffect(() => {
+    const hasSeenModal = localStorage.getItem('subscribeModalSeen');
+    const hasSubscribed = localStorage.getItem('hasSubscribed');
+
+    if (!hasSeenModal && !hasSubscribed) {
+      // Mostrar el modal después de un pequeño delay
+      const timer = setTimeout(() => {
+        setShowSubscribeModal(true);
+        localStorage.setItem('subscribeModalSeen', 'true');
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleSubscribed = () => {
+    localStorage.setItem('hasSubscribed', 'true');
+  };
+
   if (!data) {
     return <div>Cargando...</div>;
   }
@@ -36,14 +59,20 @@ function PropertiesContent() {
   const { properties, totalPages, currentPage } = data;
 
   return (
-    <main>
+    <>
       <PropertiesView
         properties={properties}
         totalPages={totalPages}
         currentPage={currentPage}
         isLoading={false}
       />
-    </main>
+      <SubscribeFloat onSubscribed={handleSubscribed} />
+      <SubscribeModal
+        open={showSubscribeModal}
+        onOpenChange={setShowSubscribeModal}
+        onSubscribed={handleSubscribed}
+      />
+    </>
   );
 }
 

@@ -27,6 +27,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Mail } from 'lucide-react';
+import { SendEmailConfirmModal } from '@/components/ui/send-email-confirm-modal';
 
 type PropertyForOffers = Property & {
   client?: { name: string };
@@ -37,10 +39,14 @@ export default function OffersPage() {
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<string>('');
   const [page, setPage] = useState(1);
+  const [isSendingEmails, setIsSendingEmails] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<PropertyForOffers | null>(null);
+  const [subscribersCount, setSubscribersCount] = useState(0);
   const queryClient = useQueryClient();
 
   const shareProperty = (property: PropertyForOffers) => {
-    const url = `${window.location.origin}/property/${property.id}`;
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`;
     const text = `Mira esta propiedad: ${property.name} - $${property.price.toLocaleString()}`;
 
     if (navigator.share) {
@@ -52,9 +58,39 @@ export default function OffersPage() {
   };
 
   const shareWhatsApp = (property: PropertyForOffers) => {
-    const url = `${window.location.origin}/property/${property.id}`;
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`;
     const text = `Hola! Te comparto esta propiedad para que la veas:\n\n*${property.name}*\n\nUbicacion: ${property.address}\nPrecio: $${property.price.toLocaleString()}\n\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const sendPropertyEmail = async (property: PropertyForOffers) => {
+    // Obtener cantidad de suscriptores primero
+    try {
+      const { data } = await clientAxios.get('/subscribers?limit=1');
+      setSubscribersCount(data.total || 0);
+      setSelectedProperty(property);
+      setConfirmModalOpen(true);
+    } catch (error) {
+      toast.error('Error al obtener suscriptores');
+    }
+  };
+
+  const handleConfirmSend = async () => {
+    if (!selectedProperty) return;
+    
+    setIsSendingEmails(true);
+    try {
+      const { data } = await clientAxios.post('/subscribers/send-property', {
+        propertyId: selectedProperty.id,
+      });
+      toast.success(`✅ Emails enviados: ${data.success} exitosos, ${data.failed} fallidos`);
+      setConfirmModalOpen(false);
+      setSelectedProperty(null);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Error al enviar emails');
+    } finally {
+      setIsSendingEmails(false);
+    }
   };
 
   const {
@@ -416,15 +452,25 @@ export default function OffersPage() {
                   : 'Publicar'}
               </DropdownMenuItem>
               {(property as any).published && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(`/property/${property.id}`, '_blank')
-                  }
-                  className="cursor-pointer"
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  Ver publicación
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      window.open(`${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`, '_blank')
+                    }
+                    className="cursor-pointer"
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    Ver publicación
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => sendPropertyEmail(property)}
+                    className="cursor-pointer"
+                    disabled={isSendingEmails}
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    {isSendingEmails ? 'Enviando...' : 'Enviar a suscriptores'}
+                  </DropdownMenuItem>
+                </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -468,6 +514,15 @@ export default function OffersPage() {
           </Button>
         </div>
       )}
+
+      <SendEmailConfirmModal
+        open={confirmModalOpen}
+        onOpenChange={setConfirmModalOpen}
+        onConfirm={handleConfirmSend}
+        propertyName={selectedProperty?.name || ''}
+        subscribersCount={subscribersCount}
+        isSending={isSendingEmails}
+      />
     </div>
   );
 }

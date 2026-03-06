@@ -2,6 +2,7 @@
 
 import { Footer } from '@/components/ui/footer';
 import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
+import { SubscribeFloat } from '@/components/ui/subscribe-float';
 import { PropertyView } from './components/PropertyView';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Product, WithContext } from 'schema-dts';
@@ -100,6 +101,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         propertyPrice={property.price}
         propertyUrl={`${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`}
       />
+      <SubscribeFloat />
     </div>
   );
 }

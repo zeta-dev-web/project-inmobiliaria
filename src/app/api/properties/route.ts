@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { notifySubscribersOfNewProperty } from "@/services/email.service";
 
 export async function POST(req: Request) {
   try {
@@ -12,8 +13,22 @@ export async function POST(req: Request) {
       },
     });
 
+    // Si la propiedad es de tipo ALQUILER y está publicada, notificar a suscriptores
+    if (property.type === 'RENT' && property.published) {
+      // Enviar emails en segundo plano (no bloquear la respuesta)
+      notifySubscribersOfNewProperty({
+        propertyName: property.name,
+        propertyAddress: property.address,
+        propertyPrice: property.price,
+        propertyDescription: property.description,
+        propertyUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`,
+        photoUrl: undefined,
+      });
+    }
+
     return NextResponse.json(property, { status: 201 });
   } catch (error) {
+    console.error('Error creating property:', error);
     return NextResponse.json(
       { error: 'Error al crear la propiedad' },
       { status: 500 }

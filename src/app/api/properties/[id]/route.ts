@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { notifySubscribersOfNewProperty } from '@/services/email.service';
 
 export async function GET(
   req: Request,
@@ -63,6 +64,19 @@ export async function PUT(
       published,
     } = body;
 
+    // Obtener la propiedad actual para comparar el estado published
+    const currentProperty = await prisma.property.findUnique({
+      where: { id },
+      include: { photos: true },
+    });
+
+    if (!currentProperty) {
+      return NextResponse.json(
+        { message: 'La propiedad no existe' },
+        { status: 404 }
+      );
+    }
+
     const property = await prisma.property.update({
       where: { id },
       data: {
@@ -81,6 +95,23 @@ export async function PUT(
         },
       },
     });
+
+    // Si la propiedad era privada y ahora se publica, enviar emails
+    const wasPrivate = currentProperty.published === false;
+    const isNowPublic = published === true;
+    const isRent = type === 'RENT';
+
+    if (wasPrivate && isNowPublic && isRent) {
+      // Enviar emails en segundo plano
+      notifySubscribersOfNewProperty({
+        propertyName: property.name,
+        propertyAddress: property.address,
+        propertyPrice: property.price,
+        propertyDescription: property.description,
+        propertyUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/property/${property.id}`,
+        photoUrl: undefined,
+      });
+    }
 
     return NextResponse.json(property);
   } catch (error) {

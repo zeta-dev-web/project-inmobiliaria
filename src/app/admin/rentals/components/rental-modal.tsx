@@ -24,6 +24,7 @@ import {
   DollarSign,
   Calendar,
   Clock,
+  Percent,
 } from 'lucide-react';
 import {
   Select,
@@ -403,17 +404,18 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
                   <Input
                     value={
-                      selectedProperty?.clientId
+                      rental?.landlord?.name ||
+                      (selectedProperty?.clientId
                         ? clients.find(
                             (c: Client) => c.id === selectedProperty.clientId
                           )?.name || 'Propietario no encontrado'
-                        : 'Seleccione una propiedad'
+                        : 'Seleccione una propiedad')
                     }
                     disabled
                     className="pl-10 bg-gray-50 cursor-not-allowed"
                   />
                 </div>
-                {selectedProperty?.clientId && (
+                {(selectedProperty?.clientId || rental?.landlordId) && (
                   <p className="text-xs text-blue-600">
                     El propietario se asigna automáticamente desde la propiedad
                     seleccionada
@@ -617,7 +619,11 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
                 <Label className="text-sm font-medium">Multa por Mora *</Label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    {watch('lateFeeType') === 'PERCENTAGE' ? (
+                      <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    ) : (
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    )}
                     <Input
                       type="number"
                       step="0.01"
@@ -662,7 +668,11 @@ export function RentalModal({ open, onOpenChange, rental }: RentalModalProps) {
               <Label className="text-sm font-medium">Administración *</Label>
               <div className="flex gap-2 mt-2">
                 <div className="relative flex-1">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  {watch('administrationType') === 'PERCENTAGE' ? (
+                    <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  ) : (
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  )}
                   <Input
                     type="number"
                     step="0.01"
