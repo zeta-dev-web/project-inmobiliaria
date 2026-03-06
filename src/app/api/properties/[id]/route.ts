@@ -104,7 +104,6 @@ export async function PUT(
 
     return NextResponse.json(property);
   } catch (error) {
-    console.error('Error updating property:', error);
     return NextResponse.json(
       { error: 'Error al actualizar la propiedad' },
       { status: 500 }

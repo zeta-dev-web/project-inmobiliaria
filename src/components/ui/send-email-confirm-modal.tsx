@@ -48,11 +48,17 @@ export function SendEmailConfirmModal({
                     Propiedad: {propertyName}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Se enviará un email a <strong className="text-[#600096]">{subscribersCount}</strong> suscriptores activos.
+                    Se enviará un email a <strong className="text-[#600096]">{subscribersCount}</strong> suscriptores {subscribersCount === 1 ? 'activo' : 'activos'}.
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Esta acción no se puede deshacer. Los suscriptores recibirán información completa de la propiedad.
-                  </p>
+                  {subscribersCount === 0 ? (
+                    <p className="text-xs text-orange-600 mt-2 font-semibold">
+                      ⚠️ No hay suscriptores activos para notificar
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Esta acción no se puede deshacer. Los suscriptores recibirán información completa de la propiedad.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -64,13 +70,17 @@ export function SendEmailConfirmModal({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            disabled={isSending}
-            className="flex-1 h-11 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+            disabled={isSending || subscribersCount === 0}
+            className="flex-1 h-11 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSending ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Enviando...</span>
+              </div>
+            ) : subscribersCount === 0 ? (
+              <div className="flex items-center justify-center gap-2">
+                <span>Sin Suscriptores</span>
               </div>
             ) : (
               <div className="flex items-center justify-center gap-2">

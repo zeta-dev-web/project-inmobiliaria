@@ -42,7 +42,6 @@ export function SubscribeModal({
         '¡Gracias por suscribirte! Recibirás las últimas novedades.'
       );
 
-      // Cerrar el modal después de mostrar el éxito
       setTimeout(() => {
         onSubscribed?.();
         onOpenChange(false);

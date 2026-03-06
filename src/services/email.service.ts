@@ -246,6 +246,14 @@ export async function subscribeEmail(email: string, name?: string) {
  */
 export async function unsubscribeEmail(email: string) {
   try {
+    const existing = await prisma.emailSubscriber.findUnique({
+      where: { email },
+    });
+    
+    if (!existing) {
+      return { success: false, error: 'Email no encontrado en suscriptores' };
+    }
+    
     const subscriber = await prisma.emailSubscriber.updateMany({
       where: { email },
       data: {
@@ -256,7 +264,6 @@ export async function unsubscribeEmail(email: string) {
 
     return { success: true, count: subscriber.count };
   } catch (error) {
-    console.error('Error unsubscribing email:', error);
     return { success: false, error: 'Error al dar de baja el email' };
   }
 }

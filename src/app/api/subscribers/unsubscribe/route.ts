@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
       message: 'Te has dado de baja exitosamente. Ya no recibirás más emails.',
     });
   } catch (error) {
-    console.error('Error unsubscribing:', error);
     return NextResponse.json(
       { error: 'Error al darse de baja. Por favor, intente nuevamente.' },
       { status: 500 }

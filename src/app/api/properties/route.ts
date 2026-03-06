@@ -14,7 +14,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(property, { status: 201 });
   } catch (error) {
-    console.error('Error creating property:', error);
     return NextResponse.json(
       { error: 'Error al crear la propiedad' },
       { status: 500 }

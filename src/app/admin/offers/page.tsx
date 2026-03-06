@@ -64,10 +64,10 @@ export default function OffersPage() {
   };
 
   const sendPropertyEmail = async (property: PropertyForOffers) => {
-    // Obtener cantidad de suscriptores primero
     try {
       const { data } = await clientAxios.get('/subscribers?limit=1');
-      setSubscribersCount(data.total || 0);
+      const activeSubscribers = data.data?.filter((s: any) => s.active).length || 0;
+      setSubscribersCount(activeSubscribers);
       setSelectedProperty(property);
       setConfirmModalOpen(true);
     } catch (error) {
