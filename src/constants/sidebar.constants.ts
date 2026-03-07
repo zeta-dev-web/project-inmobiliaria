@@ -30,7 +30,7 @@ export type NavItem = {
 };
 
 export const SIDEBAR_ITEMS: NavItem[] = [
-  { title: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
+  { title: 'Panel de Control', icon: LayoutDashboard, href: '/admin' },
   { title: 'Propiedades', icon: Building2, href: '/admin/properties' },
   { title: 'Clientes', icon: Users, href: '/admin/clients' },
   { title: 'Ofertas', icon: FileText, href: '/admin/offers' },

@@ -100,7 +100,7 @@ export function PropertiesView({
 
   const breadcrumbItems =
     user?.role === 'ADMIN'
-      ? [{ label: 'Dashboard', href: '/admin' }, { label: 'Propiedades' }]
+      ? [{ label: 'Panel de Control', href: '/admin' }, { label: 'Propiedades' }]
       : [{ label: 'Propiedades' }];
 
   return (

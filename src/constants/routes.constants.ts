@@ -1,7 +1,7 @@
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
-  DASHBOARD: '/dashboard',
+  ADMIN: '/admin',
 } as const;
 
 export const PUBLIC_ROUTES = [ROUTES.LOGIN] as const;
