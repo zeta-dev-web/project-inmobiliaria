@@ -1,0 +1,163 @@
+Code	Description	Links
+200	
+Success
+
+Media type
+
+text/plain
+Controls Accept header.
+Example Value
+Schema
+{
+  "status": 0,
+  "results": {
+    "identificacion": 0,
+    "denominacion": "string",
+    "periodos": [
+      {
+        "periodo": "string",
+        "entidades": [
+          {
+            "entidad": "string",
+            "situacion": 0,
+            "fechaSit1": "2024-09-17",
+            "monto": 0,
+            "diasAtrasoPago": 0,
+            "refinanciaciones": true,
+            "recategorizacionOblig": true,
+            "situacionJuridica": true,
+            "irrecDisposicionTecnica": true,
+            "enRevision": true,
+            "procesoJud": true
+          }
+        ]
+      }
+    ]
+  }
+}
+No links
+400	
+Bad Request
+
+Media type
+
+text/plain
+Example Value
+Schema
+{
+  "status": 0,
+  "errorMessages": [
+    "string"
+  ]
+}
+No links
+404	
+Not Found
+
+Media type
+
+text/plain
+Example Value
+Schema
+{
+  "status": 0,
+  "errorMessages": [
+    "string"
+  ]
+}
+No links
+500	
+Server Error
+
+Media type
+
+text/plain
+Example Value
+Schema
+{
+  "status": 0,
+  "errorMessages": [
+    "string"
+  ]
+}
+
+/centraldedeudores/v1.0/Deudas/Historicas/{Identificacion}:
+
+Responses
+Code	Description	Links
+200	
+Success
+
+Media type
+
+text/plain
+Controls Accept header.
+Example Value
+Schema
+{
+  "status": 0,
+  "results": {
+    "identificacion": 0,
+    "denominacion": "string",
+    "periodos": [
+      {
+        "periodo": "string",
+        "entidades": [
+          {
+            "entidad": "string",
+            "situacion": 0,
+            "monto": 0,
+            "enRevision": true,
+            "procesoJud": true
+          }
+        ]
+      }
+    ]
+  }
+}
+No links
+400	
+Bad Request
+
+Media type
+
+text/plain
+Example Value
+Schema
+{
+  "status": 0,
+  "errorMessages": [
+    "string"
+  ]
+}
+No links
+404	
+Not Found
+
+Media type
+
+text/plain
+Example Value
+Schema
+{
+  "status": 0,
+  "errorMessages": [
+    "string"
+  ]
+}
+No links
+500	
+Server Error
+
+Media type
+
+text/plain
+Example Value
+Schema
+{
+  "status": 0,
+  "errorMessages": [
+    "string"
+  ]
+}
+

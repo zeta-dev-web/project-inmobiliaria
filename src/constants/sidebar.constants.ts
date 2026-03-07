@@ -11,6 +11,7 @@ import {
   Receipt,
   HandCoins,
   Mail,
+  Wrench,
 } from 'lucide-react';
 
 export type NavChild = {
@@ -52,18 +53,35 @@ export const SIDEBAR_ITEMS: NavItem[] = [
         href: '/admin/rentals/deliveries',
         icon: HandCoins,
       },
-      {
-        title: 'Recibos Generales',
-        href: '/admin/general-receipts',
-        icon: FileText,
-      },
     ],
   },
+  { title: 'Recibos Generales', icon: FileText, href: '/admin/general-receipts' },
   { title: 'Reportes', icon: BarChart3, href: '/admin/reports' },
   {
     title: 'Suscriptores',
     icon: Mail,
     href: '/admin/subscribers',
+  },
+  {
+    title: 'Utilidades',
+    icon: Wrench,
+    children: [
+      {
+        title: 'Calculadora de Alquileres',
+        href: '/admin/utilities/rent-calculator',
+        icon: BarChart3,
+      },
+      {
+        title: 'Generar CUIL',
+        href: '/admin/utilities/cuil-generator',
+        icon: Users,
+      },
+      {
+        title: 'Antecedentes Crediticios',
+        href: '/admin/utilities/credit-report',
+        icon: FileText,
+      },
+    ],
   },
   {
     title: 'Configuración',
@@ -107,13 +125,13 @@ export const SIDEBAR_CL = {
   chevron: 'size-4 transition-transform duration-200',
   headerBorder: 'border-b border-white/10',
   footerBorder: 'border-t border-white/10',
-  flyoutActive: 'bg-[#60009614] font-semibold text-[var(--brand)]',
+  flyoutActive: 'bg-white font-semibold text-[var(--brand)]',
   subActive:
     'bg-white !text-[#600096] font-semibold border border-white/80 ' +
     'hover:bg-white/10 hover:!text-white hover:border-transparent',
 };
 
-const EXACT_MATCH_ROUTES = ['/admin'];
+const EXACT_MATCH_ROUTES = ['/admin', '/admin/rentals'];
 
 export const isActive = (pathname: string, href?: string) => {
   if (!href) return false;

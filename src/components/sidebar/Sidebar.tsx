@@ -111,8 +111,8 @@ export function AppSidebar() {
                                     isActive={childIsActive}
                                     className={
                                       childIsActive
-                                        ? 'bg-white !text-[#600096] font-semibold'
-                                        : 'text-white/90 hover:text-white'
+                                        ? 'bg-white/20 !text-white font-semibold hover:bg-white/20 hover:!text-white'
+                                        : 'text-white/90 hover:text-white hover:bg-white/10'
                                     }
                                   >
                                     <Link href={child.href}>
@@ -139,7 +139,7 @@ export function AppSidebar() {
                       isActive={isActive(pathname, item.href)}
                       className={
                         isActive(pathname, item.href)
-                          ? 'bg-white text-[#600096] font-semibold'
+                          ? 'bg-white/20 !text-white font-semibold hover:bg-white/20 hover:!text-white'
                           : 'text-white/90 hover:text-white hover:bg-white/10'
                       }
                       disabled={item.disabled}
